@@ -11,13 +11,13 @@
  *
  * 削除はスプレッドシートを直接編集する。状況の「済」⇔「候補」、各項目の編集はボードからもできる。
  * ボードの「URLから取得」は、BOOTH・pixivのページ情報からシナリオ名・種類・形式を推測して返す（保存はしない）。
- * 「種類」列は TRPG／マダミス／2人用／メモ のいずれか（2人用＝KPC＋PC、または2PC）。それ以外の値は「未分類」の候補として表示される。
+ * 「種類」列は TRPG／マダミス／2人用／2人用マダミス／メモ のいずれか（2人用＝2人で遊べるTRPG）。それ以外の値は「未分類」の候補として表示される。
  */
 
 var SHEET = "投稿";
 var HEAD = ["日時", "種類", "シナリオ名", "URL", "形式・人数など", "メモ", "状況"];
 var MEMO = "メモ";
-var GENRES = ["TRPG", "マダミス", "2人用"];
+var GENRES = ["TRPG", "マダミス", "2人用", "2人用マダミス"];
 var MAX_LIST = 300;
 
 function sheet_() {
@@ -224,7 +224,7 @@ function fields_(desc) {
 
 function genre_(tags, desc, people) {
   var all = tags.join(" ") + "\n" + desc;
-  if (/マーダーミステリー|マダミス/.test(all)) return "マダミス";
+  if (/マーダーミステリー|マダミス/.test(all)) return /[2２二]\s*(人|名|PL)\s*(用|限定|専用)?(?![0-9０-９〜～~-])/.test(people) ? "2人用マダミス" : "マダミス";
   if (tags.some(function (t) { return /タイマン|2PL|２PL|KPレス/.test(t); })) return "2人用";
   if (/^(KP\s*[1１]\s*名?\s*[、,／/]?\s*)?(PL\s*)?([12１２]\s*(人|名|PL)|ひとり|一人|二人|ふたり|タイマン)/.test(people)) return "2人用";
   if (/[2２二]\s*人\s*(限定|用)|[2２]\s*PC|KPPC|KPC\s*[+＋]\s*[1１]?\s*PC|PL\s*[1１一]\s*人|タイマン(?!改変)/.test(desc)) return "2人用";

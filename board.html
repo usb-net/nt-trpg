@@ -107,7 +107,9 @@ td.g { white-space: nowrap; }
   background: transparent; color: var(--muted); font: inherit; font-size: 13px; cursor: pointer;
 }
 .filters button[aria-pressed="true"], .seg button[aria-pressed="true"] { background: #263048; color: var(--fg); border-color: var(--accent); }
-.seg { display: flex; gap: 6px; }
+.seg { display: flex; gap: 6px; flex-wrap: wrap; }
+.seg .duo { margin-left: 10px; }
+.seg .duo:disabled { opacity: .35; cursor: default; }
 
 /* メモ */
 .memos { list-style: none; margin: 0; padding: 0; }
@@ -179,9 +181,9 @@ dialog .actions { justify-content: flex-end; }
         <div class="seg" role="group" aria-label="種類">
           <button type="button" data-genre="TRPG" aria-pressed="true">TRPG</button>
           <button type="button" data-genre="マダミス" aria-pressed="false">マダミス</button>
-          <button type="button" data-genre="2人用" aria-pressed="false">2人用</button>
+          <button type="button" class="duo" data-duo="1" aria-pressed="false">＋2人用</button>
         </div>
-        <span class="hint">2人用：KPC＋PC、または2PCで遊べるTRPG（TRPGの絞り込みにも出る）。BOOTH・pixivのURLを入れて「URLから取得」を押すと、シナリオ名・種類・形式を自動で埋める（内容は要確認）</span>
+        <span class="hint">「＋2人用」はTRPG・マダミスに重ねて選ぶ（KPC＋PC、2PCなど2人で遊べるもの）。BOOTH・pixivのURLを入れて「URLから取得」を押すと、シナリオ名・種類・形式を自動で埋める（内容は要確認）</span>
       </div>
       <div><label for="in-title">シナリオ名</label><input id="in-title" maxlength="80" placeholder="例：孤独の密室"></div>
       <div><label for="in-url">URL</label>
@@ -233,7 +235,7 @@ dialog .actions { justify-content: flex-end; }
       <div class="seg" id="e-seg" role="group" aria-label="種類">
         <button type="button" data-genre="TRPG" aria-pressed="true">TRPG</button>
         <button type="button" data-genre="マダミス" aria-pressed="false">マダミス</button>
-        <button type="button" data-genre="2人用" aria-pressed="false">2人用</button>
+        <button type="button" class="duo" data-duo="1" aria-pressed="false">＋2人用</button>
       </div>
     </div>
     <div><label for="e-title">シナリオ名</label><input id="e-title" maxlength="80"></div>
@@ -326,11 +328,19 @@ dialog .actions { justify-content: flex-end; }
     return c;
   }
 
+  // 保存値 → 表示ラベル（2人用はTRPGまたはマダミスの一種として両方のラベルを付ける）
+  function labels(g) {
+    if (g === "2人用") return ["TRPG", "2人用"];
+    if (g === "2人用マダミス") return ["マダミス", "2人用"];
+    return [g || "未分類"];
+  }
+
   function render(items) {
     last = items;
-    // 2人用はTRPGの一種として扱う（TRPGで絞り込むと2人用も出る）
     var sc = items.filter(function (x) {
-      return x.kind === "scenario" && (!filter || x.genre === filter || (filter === "TRPG" && x.genre === "2人用"));
+      if (x.kind !== "scenario") return false;
+      if (!filter) return true;
+      return labels(x.genre).indexOf(filter) >= 0;
     });
     // 通過済み（済）は下にまとめる
     sc = sc.filter(function (x) { return x.status !== DONE; }).concat(sc.filter(function (x) { return x.status === DONE; }));
@@ -344,7 +354,7 @@ dialog .actions { justify-content: flex-end; }
       if (done) tr.className = "done";
       var gwrap = document.createElement("span");
       gwrap.className = "tags";
-      (x.genre === "2人用" ? ["TRPG", "2人用"] : [x.genre || "未分類"]).forEach(function (name) {
+      labels(x.genre).forEach(function (name) {
         var g = document.createElement("span");
         g.className = "tag" + (name === "TRPG" ? " g-trpg" : name === "マダミス" ? " g-mm" : name === "2人用" ? " g-duo" : "");
         g.textContent = name;
@@ -428,15 +438,36 @@ dialog .actions { justify-content: flex-end; }
     $("#form-memo").hidden = k !== "memo";
   }
   // 種類ボタン（追加フォーム用と編集用で別々に動く）
-  function segInit(sel, onPick) {
-    var bs = document.querySelectorAll(sel + " button");
-    Array.prototype.forEach.call(bs, function (b) {
-      b.addEventListener("click", function () { segSet(sel, b.getAttribute("data-genre")); onPick(b.getAttribute("data-genre")); });
-    });
-  }
+  // TRPG／マダミスはどちらか1つ。「＋2人用」は重ねて選べる（保存値は「2人用」「2人用マダミス」）
   function segSet(sel, g) {
-    Array.prototype.forEach.call(document.querySelectorAll(sel + " button"), function (o) {
-      o.setAttribute("aria-pressed", String(o.getAttribute("data-genre") === g));
+    var base = (g === "マダミス" || g === "2人用マダミス") ? "マダミス" : "TRPG";
+    var duo = g === "2人用" || g === "2人用マダミス";
+    Array.prototype.forEach.call(document.querySelectorAll(sel + " button[data-genre]"), function (o) {
+      o.setAttribute("aria-pressed", String(o.getAttribute("data-genre") === base));
+    });
+    var d = document.querySelector(sel + " button[data-duo]");
+    d.setAttribute("aria-pressed", String(duo));
+  }
+  function segGet(sel) {
+    var on = document.querySelector(sel + ' button[data-genre][aria-pressed="true"]');
+    var base = on ? on.getAttribute("data-genre") : "TRPG";
+    var duo = document.querySelector(sel + " button[data-duo]").getAttribute("aria-pressed") === "true";
+    if (!duo) return base;
+    return base === "TRPG" ? "2人用" : "2人用マダミス";
+  }
+  function segInit(sel, onPick) {
+    Array.prototype.forEach.call(document.querySelectorAll(sel + " button[data-genre]"), function (b) {
+      b.addEventListener("click", function () {
+        var base = b.getAttribute("data-genre");
+        var duo = /2人用/.test(segGet(sel));
+        segSet(sel, duo ? (base === "TRPG" ? "2人用" : "2人用マダミス") : base);
+        onPick(segGet(sel));
+      });
+    });
+    document.querySelector(sel + " button[data-duo]").addEventListener("click", function () {
+      var cur = segGet(sel);
+      segSet(sel, cur === "2人用" ? "TRPG" : cur === "2人用マダミス" ? "マダミス" : cur === "マダミス" ? "2人用マダミス" : "2人用");
+      onPick(segGet(sel));
     });
   }
   segInit("#form-scenario .seg", function (g) { genre = g; });

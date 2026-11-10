@@ -10,17 +10,11 @@
 - 日程調整：https://chouseisan.com/s?h=3c6c03edb98e469fba23b06ffec4c406
 - シナリオURL：https://booth.pm/ja/items/3431447
 
-## 共通リンク
+## 遊びたいシナリオ・自由メモ
 
-| 用途 | URL | 備考 |
-| --- | --- | --- |
-| TRPG案内・キャラシ下書き帳 | https://usb-net.github.io/TRPG/ | 遊び方の説明を含む |
-| キャラシ下書き帳 | https://usb-net.github.io/TRPG/CSdraft.html | 新規探索者作成用 |
-| 日程調整 | https://chouseisan.com/s?h=3c6c03edb98e469fba23b06ffec4c406 | 必要に応じて更新 |
-| 議事録（Notion） | https://app.notion.com/p/ENTP-4070a6223ba581499d10c2f98068ee6f?source=copy_link | リボルバー時点の記録 |
-| 投稿ボードのデータ（スプレッドシート） | https://docs.google.com/spreadsheets/d/1qSWRHcKpm6VYFq0jiE2OBQEZxGbqHRYiysD2u5UaihM/edit | 投稿の修正・削除用。1行目とタブ名は変えない |
-| ココフォリア駒の作り方 | https://docs.ccfolia.com/pl-tutorial/character-edit | |
-| ココフォリア立ち絵の設定 | https://docs.ccfolia.com/pl-tutorial/character-edit/character-icon | |
+シナリオ候補と自由メモは投稿ボードで管理する。誰でもその場で追加でき、名前は記録されない（アカウント不要）。
+
+https://usb-net.github.io/nt-trpg/board.html
 
 ## 探索者シート
 
@@ -32,22 +26,23 @@
 | 景 | 長尾 景虎（ながお かげとら） | 継続 | リボルバーで作成 | https://iachara.com/view/15651652 |
 | 斑 | 浅城 斑（あさぎ まだら） | 継続 |  | https://iachara.com/view/15647606 |
 
-## セッションログ
-
-| シナリオ・内容 | ログ |
-| --- | --- |
-| KPCの授業を受けないと出られない部屋 | https://usb-net.github.io/TRPG/kpc-class.html |
-| リボルバー | https://usb-net.github.io/TRPG/revolver.html |
-
-## ココフォリア部屋
+## セッションログ・ココフォリア部屋
 
 > 終了済みの部屋は必要に応じてリンクを削除すること。
 
-- KPCの授業を受けないと出られない部屋：https://ccfolia.com/rooms/9LIy-6zSH
-- リボルバー：https://ccfolia.com/rooms/8KC5dIVZK
+| シナリオ・内容 | ログ | ココフォリア部屋 |
+| --- | --- | --- |
+| KPCの授業を受けないと出られない部屋 | https://usb-net.github.io/TRPG/kpc-class.html | https://ccfolia.com/rooms/9LIy-6zSH |
+| リボルバー | https://usb-net.github.io/TRPG/revolver.html | https://ccfolia.com/rooms/8KC5dIVZK |
 
-## 遊びたいシナリオ・自由メモ
+## 共通リンク
 
-シナリオ候補と自由メモは投稿ボードで管理する。誰でもその場で追加でき、名前は記録されない（アカウント不要）。
-
-https://usb-net.github.io/nt-trpg/board.html
+| 用途 | URL | 備考 |
+| --- | --- | --- |
+| TRPG案内・キャラシ下書き帳 | https://usb-net.github.io/TRPG/ | 遊び方の説明を含む |
+| キャラシ下書き帳 | https://usb-net.github.io/TRPG/CSdraft.html | 新規探索者作成用 |
+| 日程調整 | https://chouseisan.com/s?h=3c6c03edb98e469fba23b06ffec4c406 | 必要に応じて更新 |
+| 議事録（Notion） | https://app.notion.com/p/ENTP-4070a6223ba581499d10c2f98068ee6f?source=copy_link | リボルバー時点の記録 |
+| 投稿ボードのデータ（スプレッドシート） | https://docs.google.com/spreadsheets/d/1qSWRHcKpm6VYFq0jiE2OBQEZxGbqHRYiysD2u5UaihM/edit | 投稿の修正・削除用。1行目とタブ名は変えない |
+| ココフォリア駒の作り方 | https://docs.ccfolia.com/pl-tutorial/character-edit | |
+| ココフォリア立ち絵の設定 | https://docs.ccfolia.com/pl-tutorial/character-edit/character-icon | |

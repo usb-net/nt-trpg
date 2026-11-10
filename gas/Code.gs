@@ -146,11 +146,12 @@ function edit_(b) {
 
 function lookup_(b) {
   var url = String(b.url || "");
-  var info = null, m;
+  var info = null, m, why = "";
   try {
     if ((m = url.match(/booth\.pm\/(?:[a-z]{2}\/)?items\/(\d+)/))) {
       var r = UrlFetchApp.fetch("https://booth.pm/ja/items/" + m[1] + ".json",
         { muteHttpExceptions: true, headers: { "User-Agent": "Mozilla/5.0" } });
+      why = "BOOTH " + r.getResponseCode();
       if (r.getResponseCode() === 200) {
         var j = JSON.parse(r.getContentText());
         info = guess_(j.name || "", (j.tags || []).map(function (t) { return t.name; }), j.description || "");
@@ -158,6 +159,7 @@ function lookup_(b) {
     } else if ((m = url.match(/pixiv\.net\/novel\/show\.php\?(?:[^#]*&)?id=(\d+)/))) {
       var r2 = UrlFetchApp.fetch("https://www.pixiv.net/ajax/novel/" + m[1],
         { muteHttpExceptions: true, headers: { "User-Agent": "Mozilla/5.0", "Referer": "https://www.pixiv.net/" } });
+      why = "pixiv " + r2.getResponseCode();
       if (r2.getResponseCode() === 200) {
         var body = (JSON.parse(r2.getContentText()) || {}).body || {};
         var tags = ((body.tags || {}).tags || []).map(function (t) { return t.tag; });
@@ -168,8 +170,9 @@ function lookup_(b) {
     }
   } catch (err) {
     info = null;
+    why = String(err && err.message || err).slice(0, 120);
   }
-  if (!info) return json_({ ok: false, error: "ページの情報を取得できませんでした。手で入力してください" });
+  if (!info) return json_({ ok: false, error: "ページの情報を取得できませんでした。手で入力してください（" + why + "）" });
   return json_({ ok: true, data: info });
 }
 
@@ -232,6 +235,12 @@ function format_(name, tags, desc, fields) {
   else if (tags.some(function (t) { return /タイマン/.test(t); })) parts.push("タイマン");
   if (fields.time) parts.push(fields.time);
   return clip_(parts.join("／"), 60);
+}
+
+/** 「URLから取得」の確認用：エディタで一度実行すると、外部サイトへの接続の承認画面が出る */
+function testLookup() {
+  Logger.log(lookup_({ url: "https://booth.pm/ja/items/2274429" }).getContent());
+  Logger.log(lookup_({ url: "https://www.pixiv.net/novel/show.php?id=8886254" }).getContent());
 }
 
 /** 初回だけ手動で実行：見出し付きの「投稿」シートを作る */

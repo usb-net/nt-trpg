@@ -74,6 +74,16 @@ input:focus, textarea:focus { outline: 2px solid var(--accent); outline-offset: 
 .btn:disabled { opacity: .45; cursor: default; }
 .hint { color: var(--muted); font-size: 12px; }
 .foot { color: var(--muted); font-size: 11px; margin: 4px 0 0; }
+/* 投票 */
+.votes { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+.vote {
+  padding: 1px 10px; border-radius: 99px; border: 1px solid var(--line); background: transparent;
+  color: var(--muted); font: inherit; font-size: 12px; cursor: pointer; white-space: nowrap;
+}
+.vote b { margin-left: 4px; font-weight: bold; color: var(--fg); }
+.vote.on.want { border-color: #f2b66d; color: #f2b66d; background: rgba(242, 182, 109, .1); }
+.vote.on.watch { border-color: #5fd4c4; color: #5fd4c4; background: rgba(95, 212, 196, .1); }
+.vote:disabled { opacity: .5; cursor: default; }
 .foot a { color: var(--muted); word-break: break-all; }
 
 /* シナリオ候補の表 */
@@ -361,7 +371,25 @@ dialog .actions { justify-content: flex-end; }
         gwrap.appendChild(g);
       });
       tr.appendChild(td("g", "種類", gwrap));
-      tr.appendChild(td("title", "", x.title || "名称未確認"));
+      var tcell = td("title", "", x.title || "名称未確認");
+      var vbox = document.createElement("div");
+      vbox.className = "votes";
+      [["want", "やりたい"], ["watch", "見たい"]].forEach(function (v) {
+        var on = voted(x, v[0]);
+        var vb = document.createElement("button");
+        vb.type = "button";
+        vb.className = "vote " + v[0] + (on ? " on" : "");
+        vb.setAttribute("aria-pressed", String(on));
+        vb.disabled = busy || !ready;
+        vb.appendChild(document.createTextNode(v[1]));
+        var n = document.createElement("b");
+        n.textContent = x[v[0]] || 0;
+        vb.appendChild(n);
+        vb.addEventListener("click", function () { vote(x, v[0]); });
+        vbox.appendChild(vb);
+      });
+      tcell.appendChild(vbox);
+      tr.appendChild(tcell);
       tr.appendChild(td("url", "URL", urlNode(x.url)));
       tr.appendChild(td("", "形式", x.format || "－"));
       tr.appendChild(td("memo", "メモ", x.memo ? linkify(x.memo) : "－"));
@@ -404,6 +432,23 @@ dialog .actions { justify-content: flex-end; }
       ul.appendChild(li);
     });
     $("#memo-empty").hidden = memos.length > 0;
+  }
+
+  // 投票：どれに投票したかはこの端末のブラウザにだけ覚えておく（名前は送らない）
+  var VKEY = "nt-trpg-votes";
+  function votes() { try { return JSON.parse(localStorage.getItem(VKEY) || "{}"); } catch (e) { return {}; } }
+  function vkey(x, type) { return x.at + "|" + x.title + "|" + type; }
+  function voted(x, type) { return !!votes()[vkey(x, type)]; }
+  function vote(x, type) {
+    if (busy || !ready) return;
+    var all = votes(), k = vkey(x, type), undo = !!all[k];
+    busy = true; sync(); render(last);
+    call({ action: "vote", at: x.at, title: x.title, type: type, delta: undo ? -1 : 1 }).then(function (d) {
+      if (undo) delete all[k]; else all[k] = 1;
+      try { localStorage.setItem(VKEY, JSON.stringify(all)); } catch (e) {}
+      render(d.items || []);
+      toast(undo ? "取り消しました" : (type === "want" ? "「やりたい」に投票しました" : "「見たい」に投票しました"));
+    }).catch(function (e) { toast(errMsg(e)); }).then(function () { busy = false; sync(); render(last); });
   }
 
   function setStatus(x, status) {

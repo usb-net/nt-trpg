@@ -10,12 +10,13 @@
  * 5. 発行された …/exec のURLを board.html の API に貼る
  *
  * 削除はスプレッドシートを直接編集する。状況の「済」⇔「候補」、各項目の編集はボードからもできる。
+ * 「やりたい」「見たい」（H・I列）はボードの投票ボタンで増減する匿名の数。
  * ボードの「URLから取得」は、BOOTH・pixivのページ情報からシナリオ名・種類・形式を推測して返す（保存はしない）。
  * 「種類」列は TRPG／マダミス／2人用／2人用マダミス／メモ のいずれか（2人用＝2人で遊べるTRPG）。それ以外の値は「未分類」の候補として表示される。
  */
 
 var SHEET = "投稿";
-var HEAD = ["日時", "種類", "シナリオ名", "URL", "形式・人数など", "メモ", "状況"];
+var HEAD = ["日時", "種類", "シナリオ名", "URL", "形式・人数など", "メモ", "状況", "やりたい", "見たい"];
 var MEMO = "メモ";
 var GENRES = ["TRPG", "マダミス", "2人用", "2人用マダミス"];
 var MAX_LIST = 300;
@@ -56,7 +57,8 @@ function list_() {
       kind: r[1] === MEMO ? "memo" : "scenario",
       genre: GENRES.indexOf(String(r[1])) >= 0 ? String(r[1]) : "",
       title: String(r[2]), url: String(r[3]), format: String(r[4]),
-      memo: String(r[5]), status: String(r[6])
+      memo: String(r[5]), status: String(r[6]),
+      want: Number(r[7]) || 0, watch: Number(r[8]) || 0
     };
   }).reverse();
 }
@@ -77,6 +79,7 @@ function doPost(e) {
     if (b.action === "lookup") return lookup_(b);
     if (b.action === "status") return setStatus_(b);
     if (b.action === "edit") return edit_(b);
+    if (b.action === "vote") return vote_(b);
     if (b.action !== "add") return json_({ ok: false, error: "不明な操作です" });
 
     var kind = b.kind === "memo" ? "memo" : "scenario";
@@ -139,6 +142,19 @@ function edit_(b) {
   var row = findRow_(sh, b.at, b.title);
   if (!row) return json_({ ok: false, error: NOT_FOUND });
   sh.getRange(row, 2, 1, 5).setValues([[genre, safe_(title || "名称未確認"), url, safe_(format), safe_(memo)]]);
+  return json_({ ok: true, data: { items: list_() } });
+}
+
+// 「やりたい」「見たい」を1増やす／減らす（0未満にはしない）。見出しが無ければ足す
+function vote_(b) {
+  var col = b.type === "watch" ? 9 : b.type === "want" ? 8 : 0;
+  if (!col) return json_({ ok: false, error: "不明な操作です" });
+  var sh = sheet_();
+  if (!sh.getRange(1, 8).getValue()) sh.getRange(1, 8, 1, 2).setValues([["やりたい", "見たい"]]);
+  var row = findRow_(sh, b.at, b.title);
+  if (!row) return json_({ ok: false, error: NOT_FOUND });
+  var cell = sh.getRange(row, col);
+  cell.setValue(Math.max(0, (Number(cell.getValue()) || 0) + (Number(b.delta) < 0 ? -1 : 1)));
   return json_({ ok: true, data: { items: list_() } });
 }
 

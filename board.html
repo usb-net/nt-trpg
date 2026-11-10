@@ -119,6 +119,26 @@ td.g { white-space: nowrap; }
   box-shadow: 0 6px 20px rgba(0,0,0,.4);
 }
 
+/* URL欄と「URLから取得」 */
+.inrow { display: flex; gap: 6px; }
+.inrow input { flex: 1; min-width: 0; }
+.getbtn {
+  padding: 0 12px; border-radius: 8px; border: 1px solid var(--accent); background: transparent;
+  color: var(--accent); font: inherit; font-size: 13px; cursor: pointer; white-space: nowrap;
+}
+.getbtn:disabled { opacity: .45; cursor: default; }
+
+/* 編集ダイアログ */
+dialog {
+  width: min(560px, 94vw); padding: 18px; border: 1px solid var(--line); border-radius: 0;
+  background: var(--panel); color: var(--fg);
+}
+dialog::backdrop { background: rgba(0, 0, 0, .6); }
+dialog h2 { margin-bottom: 12px; }
+dialog .grid { grid-template-columns: 1fr; }
+dialog .actions { justify-content: flex-end; }
+.btn.ghost { background: transparent; color: var(--muted); border: 1px solid var(--line); }
+
 /* スマホでは表をカード状に */
 @media (max-width: 640px) {
   .grid { grid-template-columns: 1fr; }
@@ -141,7 +161,7 @@ td.g { white-space: nowrap; }
     <a href="https://usb-net.github.io/TRPG/CSdraft.html" target="_blank" rel="noopener">キャラシ下書き帳 ↗</a>
   </nav>
   <h1>NT卓 投稿ボード</h1>
-  <p class="lead">シナリオ候補とメモを誰でも追加できる。名前は記録されない。<br>修正・削除はスプレッドシートを直接編集する（1行目とタブ名は変えない）：<a href="https://docs.google.com/spreadsheets/d/1qSWRHcKpm6VYFq0jiE2OBQEZxGbqHRYiysD2u5UaihM/edit" target="_blank" rel="noopener noreferrer">https://docs.google.com/spreadsheets/d/1qSWRHcKpm6VYFq0jiE2OBQEZxGbqHRYiysD2u5UaihM/edit</a></p>
+  <p class="lead">シナリオ候補とメモを誰でも追加できる。名前は記録されない。<br>修正は各シナリオの「編集」から。削除はスプレッドシートを直接編集する（1行目とタブ名は変えない）：<a href="https://docs.google.com/spreadsheets/d/1qSWRHcKpm6VYFq0jiE2OBQEZxGbqHRYiysD2u5UaihM/edit" target="_blank" rel="noopener noreferrer">https://docs.google.com/spreadsheets/d/1qSWRHcKpm6VYFq0jiE2OBQEZxGbqHRYiysD2u5UaihM/edit</a></p>
 
   <section class="panel" aria-labelledby="h-add">
     <h2 id="h-add">追加する</h2>
@@ -157,10 +177,12 @@ td.g { white-space: nowrap; }
           <button type="button" data-genre="マダミス" aria-pressed="false">マダミス</button>
           <button type="button" data-genre="2人用" aria-pressed="false">2人用</button>
         </div>
-        <span class="hint">2人用：KPC＋PC、または2PCで遊べるもの</span>
+        <span class="hint">2人用：KPC＋PC、または2PCで遊べるもの。BOOTH・pixivのURLを入れて「URLから取得」を押すと、シナリオ名・種類・形式を自動で埋める（内容は要確認）</span>
       </div>
       <div><label for="in-title">シナリオ名</label><input id="in-title" maxlength="80" placeholder="例：孤独の密室"></div>
-      <div><label for="in-url">URL</label><input id="in-url" type="url" maxlength="300" placeholder="https://booth.pm/..."></div>
+      <div><label for="in-url">URL</label>
+        <div class="inrow"><input id="in-url" type="url" maxlength="300" placeholder="https://booth.pm/..."><button type="button" class="getbtn" id="btn-get">URLから取得</button></div>
+      </div>
       <div><label for="in-format">形式・人数など</label><input id="in-format" maxlength="60" placeholder="例：継続可／約4時間"></div>
       <div><label for="in-smemo">メモ</label><input id="in-smemo" maxlength="300" placeholder="ネタバレは書かない"></div>
     </div>
@@ -198,6 +220,29 @@ td.g { white-space: nowrap; }
   </section>
 </div>
 <div class="toast" id="toast" role="status" hidden></div>
+
+<dialog id="dlg" aria-labelledby="dlg-h">
+  <h2 id="dlg-h">シナリオを編集</h2>
+  <div class="grid">
+    <div><label>種類</label>
+      <div class="seg" id="e-seg" role="group" aria-label="種類">
+        <button type="button" data-genre="TRPG" aria-pressed="true">TRPG</button>
+        <button type="button" data-genre="マダミス" aria-pressed="false">マダミス</button>
+        <button type="button" data-genre="2人用" aria-pressed="false">2人用</button>
+      </div>
+    </div>
+    <div><label for="e-title">シナリオ名</label><input id="e-title" maxlength="80"></div>
+    <div><label for="e-url">URL</label>
+      <div class="inrow"><input id="e-url" type="url" maxlength="300"><button type="button" class="getbtn" id="e-get">URLから取得</button></div>
+    </div>
+    <div><label for="e-format">形式・人数など</label><input id="e-format" maxlength="60"></div>
+    <div><label for="e-memo">メモ</label><textarea id="e-memo" maxlength="300" placeholder="ネタバレは書かない"></textarea></div>
+  </div>
+  <div class="actions">
+    <button type="button" class="btn ghost" id="e-cancel">キャンセル</button>
+    <button type="button" class="btn" id="e-save">保存</button>
+  </div>
+</dialog>
 
 <script>
 (function () {
@@ -301,6 +346,13 @@ td.g { white-space: nowrap; }
       btn.disabled = busy || !ready;
       btn.addEventListener("click", function () { setStatus(x, done ? "候補" : DONE); });
       cell.appendChild(btn);
+      var eb = document.createElement("button");
+      eb.type = "button";
+      eb.className = "mini";
+      eb.textContent = "編集";
+      eb.disabled = busy || !ready;
+      eb.addEventListener("click", function () { openEdit(x); });
+      cell.appendChild(eb);
       tr.appendChild(cell);
       body.appendChild(tr);
     });
@@ -352,11 +404,77 @@ td.g { white-space: nowrap; }
     $("#form-scenario").hidden = k !== "scenario";
     $("#form-memo").hidden = k !== "memo";
   }
-  Array.prototype.forEach.call(document.querySelectorAll(".seg button"), function (b) {
-    b.addEventListener("click", function () {
-      genre = b.getAttribute("data-genre");
-      Array.prototype.forEach.call(document.querySelectorAll(".seg button"), function (o) { o.setAttribute("aria-pressed", String(o === b)); });
+  // 種類ボタン（追加フォーム用と編集用で別々に動く）
+  function segInit(sel, onPick) {
+    var bs = document.querySelectorAll(sel + " button");
+    Array.prototype.forEach.call(bs, function (b) {
+      b.addEventListener("click", function () { segSet(sel, b.getAttribute("data-genre")); onPick(b.getAttribute("data-genre")); });
     });
+  }
+  function segSet(sel, g) {
+    Array.prototype.forEach.call(document.querySelectorAll(sel + " button"), function (o) {
+      o.setAttribute("aria-pressed", String(o.getAttribute("data-genre") === g));
+    });
+  }
+  segInit("#form-scenario .seg", function (g) { genre = g; });
+  var eGenre = "TRPG";
+  segInit("#e-seg", function (g) { eGenre = g; });
+
+  // URLから取得：空欄だけ埋める（種類は推測で切り替える）
+  function lookup(urlSel, btnSel, fill) {
+    var u = v(urlSel);
+    if (!/^https?:\/\/\S+$/.test(u)) { toast("BOOTHかpixivのURLを入れてください"); return; }
+    var b = $(btnSel);
+    b.disabled = true;
+    b.textContent = "取得中…";
+    call({ action: "lookup", url: u }).then(function (d) {
+      fill(d);
+      toast("取得しました。内容を確認してください");
+    }).catch(function (e) { toast(errMsg(e)); }).then(function () { b.disabled = false; b.textContent = "URLから取得"; });
+  }
+  function fillIfEmpty(sel, val) { if (val && !v(sel)) $(sel).value = val; }
+
+  $("#btn-get").addEventListener("click", function () {
+    lookup("#in-url", "#btn-get", function (d) {
+      fillIfEmpty("#in-title", d.title);
+      fillIfEmpty("#in-format", d.format);
+      if (d.genre) { genre = d.genre; segSet("#form-scenario .seg", d.genre); }
+    });
+  });
+
+  // 編集
+  var editing = null;
+  function openEdit(x) {
+    if (busy || !ready) return;
+    editing = x;
+    eGenre = x.genre || "TRPG";
+    segSet("#e-seg", eGenre);
+    $("#e-title").value = x.title || "";
+    $("#e-url").value = x.url || "";
+    $("#e-format").value = x.format || "";
+    $("#e-memo").value = x.memo || "";
+    $("#dlg").showModal();
+  }
+  $("#e-get").addEventListener("click", function () {
+    lookup("#e-url", "#e-get", function (d) {
+      fillIfEmpty("#e-title", d.title);
+      fillIfEmpty("#e-format", d.format);
+      if (d.genre) { eGenre = d.genre; segSet("#e-seg", d.genre); }
+    });
+  });
+  $("#e-cancel").addEventListener("click", function () { $("#dlg").close(); });
+  $("#e-save").addEventListener("click", function () {
+    if (!editing || busy) return;
+    var f = { genre: eGenre, title: v("#e-title"), url: v("#e-url"), format: v("#e-format"), memo: v("#e-memo") };
+    if (!f.title && !f.url) { toast("シナリオ名かURLのどちらかを入れてください"); return; }
+    if (f.url && !/^https?:\/\/\S+$/.test(f.url)) { toast("URLは http から始まる形で入れてください"); return; }
+    busy = true; sync();
+    $("#e-save").disabled = true;
+    call({ action: "edit", at: editing.at, title: editing.title, fields: f }).then(function (d) {
+      $("#dlg").close();
+      render(d.items || []);
+      toast("保存しました");
+    }).catch(function (e) { toast(errMsg(e)); }).then(function () { busy = false; $("#e-save").disabled = false; sync(); render(last); });
   });
   Array.prototype.forEach.call(document.querySelectorAll(".filters button"), function (b) {
     b.addEventListener("click", function () {

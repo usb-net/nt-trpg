@@ -9,7 +9,8 @@
  *    実行ユーザー：自分 ／ アクセスできるユーザー：全員
  * 5. 発行された …/exec のURLを board.html の API に貼る
  *
- * 削除はスプレッドシートを直接編集する。状況の「済」⇔「候補」はボードのボタンでも切り替えられる。
+ * 削除はスプレッドシートを直接編集する。状況の「済」⇔「候補」、各項目の編集はボードからもできる。
+ * ボードの「URLから取得」は、BOOTH・pixivのページ情報からシナリオ名・種類・形式を推測して返す（保存はしない）。
  * 「種類」列は TRPG／マダミス／2人用／メモ のいずれか（2人用＝KPC＋PC、または2PC）。それ以外の値は「未分類」の候補として表示される。
  */
 
@@ -73,7 +74,9 @@ function doPost(e) {
   try {
     lock.waitLock(10000);
     var b = JSON.parse((e && e.postData && e.postData.contents) || "{}");
+    if (b.action === "lookup") return lookup_(b);
     if (b.action === "status") return setStatus_(b);
+    if (b.action === "edit") return edit_(b);
     if (b.action !== "add") return json_({ ok: false, error: "不明な操作です" });
 
     var kind = b.kind === "memo" ? "memo" : "scenario";
@@ -97,23 +100,137 @@ function doPost(e) {
   }
 }
 
-// 状況を「済」⇔「候補」に切り替える。行は日時（A列）とシナリオ名（C列）で探す
-function setStatus_(b) {
-  var status = b.status === "済" ? "済" : "候補";
-  var at = Number(b.at);
-  var sh = sheet_();
+// シナリオの行を日時（A列）とシナリオ名（C列）で探し、行番号を返す（見つからなければ 0）
+function findRow_(sh, at, title) {
   var n = sh.getLastRow() - 1;
-  if (n < 1 || !at) return json_({ ok: false, error: "対象が見つかりませんでした" });
+  at = Number(at);
+  if (n < 1 || !at) return 0;
   var rows = sh.getRange(2, 1, n, 3).getValues();
   for (var i = 0; i < rows.length; i++) {
     var r = rows[i];
     if (r[1] === MEMO) continue;
-    if (r[0] instanceof Date && r[0].getTime() === at && String(r[2]) === String(b.title || "")) {
-      sh.getRange(i + 2, 7).setValue(status);
-      return json_({ ok: true, data: { items: list_() } });
-    }
+    if (r[0] instanceof Date && r[0].getTime() === at && String(r[2]) === String(title || "")) return i + 2;
   }
-  return json_({ ok: false, error: "対象が見つかりませんでした。再読み込みしてから試してください" });
+  return 0;
+}
+
+var NOT_FOUND = "対象が見つかりませんでした。再読み込みしてから試してください";
+
+// 状況を「済」⇔「候補」に切り替える
+function setStatus_(b) {
+  var sh = sheet_();
+  var row = findRow_(sh, b.at, b.title);
+  if (!row) return json_({ ok: false, error: NOT_FOUND });
+  sh.getRange(row, 7).setValue(b.status === "済" ? "済" : "候補");
+  return json_({ ok: true, data: { items: list_() } });
+}
+
+// 種類・シナリオ名・URL・形式・メモを書き換える（状況はそのまま）
+function edit_(b) {
+  var f = b.fields || {};
+  var genre = GENRES.indexOf(f.genre) >= 0 ? f.genre : "TRPG";
+  var title = clip_(f.title, 80);
+  var url = clip_(f.url, 300);
+  var format = clip_(f.format, 60);
+  var memo = clip_(f.memo, 300);
+  if (url && !/^https?:\/\/\S+$/.test(url)) return json_({ ok: false, error: "URLは http から始まる形で入れてください" });
+  if (!title && !url) return json_({ ok: false, error: "シナリオ名かURLのどちらかを入れてください" });
+  var sh = sheet_();
+  var row = findRow_(sh, b.at, b.title);
+  if (!row) return json_({ ok: false, error: NOT_FOUND });
+  sh.getRange(row, 2, 1, 5).setValues([[genre, safe_(title || "名称未確認"), url, safe_(format), safe_(memo)]]);
+  return json_({ ok: true, data: { items: list_() } });
+}
+
+// ---- URLから取得 ----
+
+function lookup_(b) {
+  var url = String(b.url || "");
+  var info = null, m;
+  try {
+    if ((m = url.match(/booth\.pm\/(?:[a-z]{2}\/)?items\/(\d+)/))) {
+      var r = UrlFetchApp.fetch("https://booth.pm/ja/items/" + m[1] + ".json",
+        { muteHttpExceptions: true, headers: { "User-Agent": "Mozilla/5.0" } });
+      if (r.getResponseCode() === 200) {
+        var j = JSON.parse(r.getContentText());
+        info = guess_(j.name || "", (j.tags || []).map(function (t) { return t.name; }), j.description || "");
+      }
+    } else if ((m = url.match(/pixiv\.net\/novel\/show\.php\?(?:[^#]*&)?id=(\d+)/))) {
+      var r2 = UrlFetchApp.fetch("https://www.pixiv.net/ajax/novel/" + m[1],
+        { muteHttpExceptions: true, headers: { "User-Agent": "Mozilla/5.0", "Referer": "https://www.pixiv.net/" } });
+      if (r2.getResponseCode() === 200) {
+        var body = (JSON.parse(r2.getContentText()) || {}).body || {};
+        var tags = ((body.tags || {}).tags || []).map(function (t) { return t.tag; });
+        info = guess_(body.title || "", tags, htmlText_(body.description || ""));
+      }
+    } else {
+      return json_({ ok: false, error: "自動取得できるのはBOOTHとpixiv小説のURLです" });
+    }
+  } catch (err) {
+    info = null;
+  }
+  if (!info) return json_({ ok: false, error: "ページの情報を取得できませんでした。手で入力してください" });
+  return json_({ ok: true, data: info });
+}
+
+function htmlText_(h) {
+  return String(h).replace(/<br\s*\/?>/gi, "\n").replace(/<[^>]+>/g, " ")
+    .replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, "&");
+}
+
+function guess_(name, tags, desc) {
+  var fields = fields_(desc);
+  return { title: cleanTitle_(name), genre: genre_(tags, desc, fields.people), format: format_(name, tags, desc, fields) };
+}
+
+// 「【CoCシナリオ】」「SPLL:E…」などの飾りを外してシナリオ名だけにする
+function cleanTitle_(t0) {
+  var t = String(t0).replace(/[（(]?\s*SPLL\s*[:：]?\s*E?\d+\s*[）)]?/gi, "").trim();
+  var q = t.match(/『([^』]+)』/) || t.match(/「([^」]+)」/);
+  if (q) return q[1].trim();
+  var KW = /CoC|シナリオ|TRPG|クトゥルフ|タイマン|[0-9０-９]+版|6th|7th/i;
+  t = t.replace(/【([^】]*)】/g, function (all, inner) { return KW.test(inner) ? " " : all; });
+  t = t.replace(/^\s*(CoC|クトゥルフ神話TRPG)\s*(第?[0-9]+(版|th))?\s*(タイマン)?\s*(シナリオ)?\s*[:：]?/i, "");
+  t = t.trim().replace(/[（(][^（()）]*[）)]\s*$/, "").trim();
+  var only = t.match(/^【([^】]+)】$/);
+  if (only) t = only[1];
+  return clip_(t.trim() || t0, 80);
+}
+
+// 説明文の「人数：」「プレイ時間：」などを抜き出す
+function fields_(desc) {
+  var d = String(desc).replace(/\r/g, "");
+  function pick(re) {
+    var m = d.match(re);
+    if (!m) return "";
+    var v = m[1].split(/[\n【■]/)[0].trim();
+    if (v.length > 14) v = v.split(/[（(]/)[0].trim();
+    return v.slice(0, 20);
+  }
+  return {
+    people: pick(/(?:PL人数|プレイ人数|推奨人数|対象人数|PL数|人数)\s*[】:：]\s*([^\n]+)/),
+    time: pick(/(?:プレイ時間|所要時間|想定時間|時間)\s*[】:：]\s*([^\n]+)/)
+  };
+}
+
+function genre_(tags, desc, people) {
+  var all = tags.join(" ") + "\n" + desc;
+  if (/マーダーミステリー|マダミス/.test(all)) return "マダミス";
+  if (tags.some(function (t) { return /タイマン|2PL|２PL|KPレス/.test(t); })) return "2人用";
+  if (/^(KP\s*[1１]\s*名?\s*[、,／/]?\s*)?(PL\s*)?([12１２]\s*(人|名|PL)|ひとり|一人|二人|ふたり|タイマン)/.test(people)) return "2人用";
+  if (/[2２二]\s*人\s*(限定|用)|[2２]\s*PC|KPPC|KPC\s*[+＋]\s*[1１]?\s*PC|タイマン(?!改変)/.test(desc)) return "2人用";
+  return "TRPG";
+}
+
+function format_(name, tags, desc, fields) {
+  var parts = [];
+  var all = name + " " + tags.join(" ") + " " + desc;
+  if (/7版|第7版|7th/i.test(all)) parts.push("7版"); else if (/6版|第6版|6th/i.test(all)) parts.push("6版");
+  if (tags.some(function (t) { return /KPレス/.test(t); })) parts.push("KPレス");
+  if (fields.people) parts.push(fields.people);
+  else if (tags.some(function (t) { return /タイマン/.test(t); })) parts.push("タイマン");
+  if (fields.time) parts.push(fields.time);
+  return clip_(parts.join("／"), 60);
 }
 
 /** 初回だけ手動で実行：見出し付きの「投稿」シートを作る */

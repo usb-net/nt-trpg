@@ -99,6 +99,8 @@ td.plain .mini { margin-top: 0; }
 .tag.g-mm { color: var(--accent-2); border-color: var(--accent-2); }
 .tag.g-duo { color: #ff8fb3; border-color: #ff8fb3; }
 td.g { white-space: nowrap; }
+.tags { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 3px; }
+@media (max-width: 640px) { .tags { flex-direction: row; } }
 .filters { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
 .filters button, .seg button {
   padding: 4px 14px; border-radius: 99px; border: 1px solid var(--line);
@@ -179,7 +181,7 @@ dialog .actions { justify-content: flex-end; }
           <button type="button" data-genre="マダミス" aria-pressed="false">マダミス</button>
           <button type="button" data-genre="2人用" aria-pressed="false">2人用</button>
         </div>
-        <span class="hint">2人用：KPC＋PC、または2PCで遊べるもの。BOOTH・pixivのURLを入れて「URLから取得」を押すと、シナリオ名・種類・形式を自動で埋める（内容は要確認）</span>
+        <span class="hint">2人用：KPC＋PC、または2PCで遊べるTRPG（TRPGの絞り込みにも出る）。BOOTH・pixivのURLを入れて「URLから取得」を押すと、シナリオ名・種類・形式を自動で埋める（内容は要確認）</span>
       </div>
       <div><label for="in-title">シナリオ名</label><input id="in-title" maxlength="80" placeholder="例：孤独の密室"></div>
       <div><label for="in-url">URL</label>
@@ -326,7 +328,10 @@ dialog .actions { justify-content: flex-end; }
 
   function render(items) {
     last = items;
-    var sc = items.filter(function (x) { return x.kind === "scenario" && (!filter || x.genre === filter); });
+    // 2人用はTRPGの一種として扱う（TRPGで絞り込むと2人用も出る）
+    var sc = items.filter(function (x) {
+      return x.kind === "scenario" && (!filter || x.genre === filter || (filter === "TRPG" && x.genre === "2人用"));
+    });
     // 通過済み（済）は下にまとめる
     sc = sc.filter(function (x) { return x.status !== DONE; }).concat(sc.filter(function (x) { return x.status === DONE; }));
     var memos = items.filter(function (x) { return x.kind === "memo"; });
@@ -337,10 +342,15 @@ dialog .actions { justify-content: flex-end; }
       var tr = document.createElement("tr");
       var done = x.status === DONE;
       if (done) tr.className = "done";
-      var g = document.createElement("span");
-      g.className = "tag" + (x.genre === "TRPG" ? " g-trpg" : x.genre === "マダミス" ? " g-mm" : x.genre === "2人用" ? " g-duo" : "");
-      g.textContent = x.genre || "未分類";
-      tr.appendChild(td("g", "種類", g));
+      var gwrap = document.createElement("span");
+      gwrap.className = "tags";
+      (x.genre === "2人用" ? ["TRPG", "2人用"] : [x.genre || "未分類"]).forEach(function (name) {
+        var g = document.createElement("span");
+        g.className = "tag" + (name === "TRPG" ? " g-trpg" : name === "マダミス" ? " g-mm" : name === "2人用" ? " g-duo" : "");
+        g.textContent = name;
+        gwrap.appendChild(g);
+      });
+      tr.appendChild(td("g", "種類", gwrap));
       tr.appendChild(td("title", "", x.title || "名称未確認"));
       tr.appendChild(td("url", "URL", urlNode(x.url)));
       tr.appendChild(td("", "形式", x.format || "－"));

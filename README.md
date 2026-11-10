@@ -25,26 +25,26 @@
 
 ## 探索者シート
 
-| PL | 探索者 | キャラシ |
-| --- | --- | --- |
-| 蛍 | リボルバー継続探索者 | https://iachara.com/view/15235040 |
-| 發 | リボルバー継続探索者 | https://iachara.com/view/15639895 |
-| 昏 | リボルバー探索者 | https://iachara.com/view/15652832 |
-| 景 | リボルバー探索者 | https://iachara.com/view/15651652 |
-| 斑 | リボルバー探索者 | https://iachara.com/view/15647606 |
+| PL | 探索者名 | 区分 | 備考 | キャラシ |
+| --- | --- | --- | --- | --- |
+| 蛍 | 蛍（けい） | 継続 | リボルバー以前からの探索者 | https://iachara.com/view/15235040 |
+| 發 | 李皇發（リ・ウォンファ） | 継続 | リボルバー以前からの探索者 | https://iachara.com/view/15639895 |
+| 昏 | 久世 昏（くぜ こん） | 要確認 | リボルバーで作成 | https://iachara.com/view/15652832 |
+| 景 | 長尾 景虎（ながお かげとら） | 要確認 | リボルバーで作成 | https://iachara.com/view/15651652 |
+| 斑 | 浅城 斑（あさぎ まだら） | 継続 | リボルバーで作成 | https://iachara.com/view/15647606 |
 
 ## セッションログ
 
 | シナリオ・内容 | ログ |
 | --- | --- |
-| 景・斑 タイマン練習 | https://usb-net.github.io/TRPG/kpc-class.html |
+| KPCの授業を受けないと出られない部屋 | https://usb-net.github.io/TRPG/kpc-class.html |
 | リボルバー | https://usb-net.github.io/TRPG/revolver.html |
 
 ## ココフォリア部屋
 
 > 終了済みの部屋は必要に応じてリンクを削除すること。
 
-- 景・斑 タイマン練習：https://ccfolia.com/rooms/9LIy-6zSH
+- KPCの授業を受けないと出られない部屋：https://ccfolia.com/rooms/9LIy-6zSH
 - リボルバー：https://ccfolia.com/rooms/8KC5dIVZK
 
 ## 遊びたいシナリオ・自由メモ

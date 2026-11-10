@@ -1,5 +1,5 @@
 /**
- * NT卓 投稿ボード用の窓口（Google Apps Script）
+ * NT卓 シナリオ候補用の窓口（Google Apps Script）
  *
  * 使い方
  * 1. Googleスプレッドシートを新規作成し、「拡張機能」→「Apps Script」を開く

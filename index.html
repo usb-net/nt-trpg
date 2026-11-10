@@ -167,7 +167,7 @@ footer { color: var(--muted); font-size: 12px; margin-top: 8px; text-align: cent
 <div class="wrap">
   <nav>
     <a href="./" aria-current="page">総合ページ</a>
-    <a href="board.html">投稿ボード</a>
+    <a href="board.html">シナリオ候補</a>
     <a href="https://usb-net.github.io/TRPG/" target="_blank" rel="noopener">TRPG案内 ↗</a>
     <a href="https://usb-net.github.io/TRPG/CSdraft.html" target="_blank" rel="noopener">キャラシ下書き帳 ↗</a>
   </nav>
@@ -186,11 +186,11 @@ footer { color: var(--muted); font-size: 12px; margin-top: 8px; text-align: cent
     return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
   }
 
-  // URLはURLそのものを表示してリンクにする。投稿ボードのURLだけはボタンにする
+  // URLはURLそのものを表示してリンクにする。シナリオ候補のURLだけはボタンにする
   function inline(s) {
     return esc(s).replace(/https?:\/\/[^\s<|）)]+/g, function (u) {
       var raw = u.replace(/&amp;/g, "&");
-      if (raw === BOARD) return '<a class="btn" href="board.html">投稿ボードを開く</a>';
+      if (raw === BOARD) return '<a class="btn" href="board.html">シナリオ候補を開く</a>';
       return '<a href="' + u + '" target="_blank" rel="noopener noreferrer">' + u + "</a>";
     });
   }

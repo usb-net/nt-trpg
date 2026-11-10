@@ -26,6 +26,7 @@ body {
   font-family: "Hiragino Sans", "Yu Gothic", "Noto Sans JP", sans-serif;
   font-size: 15px;
   line-height: 1.7;
+  overflow-wrap: anywhere;
   padding: 24px 14px 64px;
 }
 .wrap { max-width: 920px; margin: 0 auto; }
@@ -37,7 +38,7 @@ nav a {
 nav a[aria-current="page"] { color: var(--fg); border-color: var(--accent); background: #263048; }
 h1 { font-size: 22px; margin: 0 0 4px; letter-spacing: .04em; }
 .lead { color: var(--muted); margin: 0 0 20px; font-size: 13px; }
-.lead a { color: var(--accent); }
+.lead a { color: var(--accent); word-break: break-all; }
 .panel {
   background: var(--panel);
   border: 1px solid var(--line);

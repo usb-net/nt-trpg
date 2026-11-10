@@ -90,7 +90,8 @@ tr.done td.st { opacity: 1; }
 }
 .mini:hover { color: var(--fg); border-color: var(--accent); }
 .mini:disabled { opacity: .4; cursor: default; }
-@media (max-width: 640px) { .mini { display: inline-block; margin: 0 0 0 8px; } }
+td.plain .mini { margin-top: 0; }
+@media (max-width: 640px) { .mini { display: inline-block; margin: 0 0 0 8px; } td.plain .mini { margin-left: 0; } }
 .tag.g-trpg { color: var(--accent); border-color: var(--accent); }
 .tag.g-mm { color: var(--accent-2); border-color: var(--accent-2); }
 td.g { white-space: nowrap; }
@@ -284,7 +285,10 @@ td.g { white-space: nowrap; }
       var tag = document.createElement("span");
       tag.className = "tag" + (done ? " done" : x.status && x.status !== "候補" ? " hot" : "");
       tag.textContent = done ? "通過済み" : (x.status || "候補");
-      var cell = td("st", "状況", tag);
+      // 既定の「候補」はラベルを出さず、ボタンだけにする
+      var plain = !done && (!x.status || x.status === "候補");
+      var cell = plain ? td("st", "状況", document.createTextNode("")) : td("st", "状況", tag);
+      if (plain) cell.classList.add("plain");
       var btn = document.createElement("button");
       btn.type = "button";
       btn.className = "mini";

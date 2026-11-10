@@ -7,11 +7,12 @@
 <title>NT卓 総合ページ</title>
 <style>
 :root {
-  --bg: #12141a;
-  --panel: #1b1e27;
-  --line: #2c3040;
-  --fg: #e8e6e1;
-  --muted: #9a9cab;
+  --bg: #0e1016;
+  --panel: #171a23;
+  --panel-2: #1d212c;
+  --line: #2a2f3d;
+  --fg: #ecebe6;
+  --muted: #8f93a6;
   --accent: #7fb2ff;
   color-scheme: dark;
 }
@@ -19,54 +20,146 @@
 [hidden] { display: none !important; }
 html, body { margin: 0; }
 body {
-  background: var(--bg);
+  background:
+    radial-gradient(ellipse 70% 40% at 15% -5%, rgba(127, 178, 255, .16), transparent 70%),
+    radial-gradient(ellipse 50% 35% at 95% 0%, rgba(199, 155, 255, .14), transparent 70%),
+    var(--bg);
+  background-attachment: fixed;
   color: var(--fg);
   font-family: "Hiragino Sans", "Yu Gothic", "Noto Sans JP", sans-serif;
   font-size: 15px;
   line-height: 1.7;
-  padding: 24px 14px 64px;
+  padding: 0 14px 64px;
 }
-.wrap { max-width: 920px; margin: 0 auto; }
-nav { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+.wrap { max-width: 960px; margin: 0 auto; }
+
+/* ナビ：上部に固定 */
+nav {
+  position: sticky; top: 0; z-index: 5;
+  display: flex; flex-wrap: wrap; gap: 8px;
+  padding: 14px 0; margin-bottom: 8px;
+  background: linear-gradient(var(--bg) 70%, transparent);
+}
 nav a {
   padding: 6px 14px; border-radius: 99px; border: 1px solid var(--line);
-  color: var(--muted); text-decoration: none; font-size: 13px;
+  color: var(--muted); text-decoration: none; font-size: 13px; background: rgba(23, 26, 35, .8);
 }
-nav a[aria-current="page"] { color: var(--fg); border-color: var(--accent); background: #263048; }
-h1 { font-size: 22px; margin: 0 0 4px; letter-spacing: .04em; }
-.lead { color: var(--muted); margin: 0 0 20px; font-size: 13px; }
+nav a:hover { color: var(--fg); border-color: #3d4458; }
+nav a[aria-current="page"] { color: #0d1320; border-color: var(--accent); background: var(--accent); font-weight: bold; }
+
+/* 見出し */
+header { margin: 18px 0 26px; }
+.kicker { font-size: 12px; letter-spacing: .25em; color: var(--accent); font-weight: bold; }
+h1 { font-size: 34px; line-height: 1.25; margin: 4px 0 10px; letter-spacing: .04em; }
+h1 .mark {
+  background: linear-gradient(90deg, #7fb2ff, #c79bff);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.lead { color: var(--muted); font-size: 14px; margin: 0; }
+.lead p { margin: 0; }
+
+/* セクション：色ごとに左の帯と見出しの印を変える */
 .panel {
+  --c: var(--accent);
+  position: relative;
   background: var(--panel);
   border: 1px solid var(--line);
-  border-radius: 10px;
-  padding: 16px;
+  border-radius: 12px;
+  padding: 18px 20px 18px 24px;
   margin-bottom: 18px;
+  overflow: hidden;
 }
-h2 { font-size: 16px; margin: 0 0 12px; }
+.panel::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--c); }
+.panel h2 {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 18px; margin: 0 0 14px; letter-spacing: .03em;
+}
+.panel h2::before {
+  content: ""; width: 10px; height: 10px; border-radius: 3px; background: var(--c);
+  box-shadow: 0 0 12px var(--c);
+}
+.c-blue   { --c: #7fb2ff; }
+.c-violet { --c: #c79bff; }
+.c-teal   { --c: #5fd4c4; }
+.c-amber  { --c: #f2b66d; }
+.c-pink   { --c: #ff8fb3; }
+.c-green  { --c: #7ddf9a; }
+
 p { margin: 0 0 8px; }
 p:last-child { margin-bottom: 0; }
-.note { color: var(--muted); font-size: 13px; border-left: 3px solid var(--line); padding-left: 10px; }
-ul { margin: 0; padding-left: 1.2em; }
-li { margin: 2px 0; }
-a { color: var(--accent); word-break: break-all; }
-table { width: 100%; border-collapse: collapse; font-size: 14px; }
-th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
-th { color: var(--muted); font-weight: normal; font-size: 12px; white-space: nowrap; }
-.btn {
-  display: inline-block; margin-top: 4px; padding: 9px 20px; border-radius: 8px; font-weight: bold;
-  background: var(--accent); color: #0d1320; text-decoration: none; word-break: normal;
+.note {
+  color: var(--muted); font-size: 13px;
+  background: var(--panel-2); border-radius: 8px; padding: 8px 12px; margin-bottom: 12px;
 }
+ul { margin: 0; padding-left: 1.2em; }
+li { margin: 3px 0; }
+li::marker { color: var(--c, var(--accent)); }
+a { color: var(--accent); word-break: break-all; text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* 表 */
+.tbl { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { text-align: left; padding: 10px 12px; vertical-align: top; }
+th {
+  background: var(--panel-2); color: var(--muted); font-weight: bold; font-size: 12px;
+  letter-spacing: .05em; white-space: nowrap; border-bottom: 1px solid var(--line);
+}
+tbody tr + tr td { border-top: 1px solid var(--line); }
+tbody tr:hover td { background: rgba(255, 255, 255, .025); }
+td:first-child { font-weight: bold; }
+td a { font-size: 13px; }
+td.dim { color: #555b6e; }
+.pill {
+  display: inline-block; padding: 0 10px; border-radius: 99px; font-size: 12px; font-weight: bold;
+  border: 1px solid var(--c, var(--accent)); color: var(--c, var(--accent)); white-space: nowrap;
+}
+
+/* 次回卓：大きく見せる */
+.hero { --c: #7fb2ff; background: linear-gradient(135deg, #1c2438 0%, #1e1a30 100%); border-color: #34405e; padding: 22px 24px 22px 28px; }
+.hero::before { width: 5px; background: linear-gradient(#7fb2ff, #c79bff); }
+.hero .label { font-size: 12px; color: var(--muted); letter-spacing: .1em; }
+.hero .title { font-size: 28px; font-weight: bold; line-height: 1.35; margin: 2px 0 12px; }
+.hero .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.hero .chip {
+  padding: 3px 12px; border-radius: 99px; font-size: 13px;
+  background: rgba(127, 178, 255, .14); color: #cfe0ff; border: 1px solid rgba(127, 178, 255, .35);
+}
+.hero .chip.warn { background: rgba(242, 182, 109, .14); color: #ffd9a6; border-color: rgba(242, 182, 109, .4); }
+.hero .cond { color: var(--fg); font-size: 14px; margin-bottom: 16px; }
+.hero .cond b { color: var(--muted); font-weight: normal; margin-right: 6px; }
+.hero .links { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
+.linkcard {
+  display: block; padding: 12px 14px; border-radius: 10px; text-decoration: none;
+  background: rgba(14, 16, 22, .55); border: 1px solid #34405e;
+}
+.linkcard:hover { border-color: var(--accent); text-decoration: none; }
+.linkcard .t { display: block; color: var(--fg); font-weight: bold; font-size: 14px; }
+.linkcard .t::after { content: " ↗"; color: var(--accent); }
+.linkcard .u { display: block; color: var(--accent); font-size: 12px; word-break: break-all; margin-top: 2px; }
+
+.btn {
+  display: inline-block; margin-top: 4px; padding: 10px 22px; border-radius: 10px; font-weight: bold;
+  background: linear-gradient(90deg, #7fb2ff, #a99bff); color: #0d1320; text-decoration: none; word-break: normal;
+}
+.btn:hover { text-decoration: none; filter: brightness(1.08); }
 .err { color: #ff9a9a; }
-footer { color: var(--muted); font-size: 12px; margin-top: 8px; }
+footer { color: var(--muted); font-size: 12px; margin-top: 8px; text-align: center; }
 
 /* スマホでは表をカード状に */
 @media (max-width: 640px) {
+  h1 { font-size: 28px; }
+  .hero .title { font-size: 24px; }
+  .panel { padding: 16px 14px 16px 18px; }
+  .tbl { border: 0; border-radius: 0; }
   thead { display: none; }
   table, tbody, tr, td { display: block; width: 100%; }
-  tr { border-bottom: 1px solid var(--line); padding: 8px 0; }
-  td { border: 0; padding: 2px 0; }
-  td:first-child { font-weight: bold; }
-  td:not(:first-child)[data-k]::before { content: attr(data-k) "："; color: var(--muted); font-size: 12px; }
+  tbody tr { border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; margin-bottom: 8px; background: var(--panel-2); }
+  tbody tr + tr td { border-top: 0; }
+  td { padding: 2px 0; }
+  td:first-child { font-size: 15px; }
+  td:not(:first-child)[data-k]::before { content: attr(data-k) "："; color: var(--muted); font-size: 12px; font-weight: normal; }
+  td.dim { display: none; }
 }
 </style>
 </head>
@@ -85,7 +178,9 @@ footer { color: var(--muted); font-size: 12px; margin-top: 8px; }
 <script>
 (function () {
   "use strict";
-  var BOARD = "https://usb-net.github.io/nt-trpg/board.html";
+  var SITE = "https://usb-net.github.io/nt-trpg/";
+  var BOARD = SITE + "board.html";
+  var COLORS = ["c-violet", "c-teal", "c-amber", "c-pink", "c-green", "c-blue"];
 
   function esc(s) {
     return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -104,24 +199,54 @@ footer { color: var(--muted); font-size: 12px; margin-top: 8px; }
     return line.trim().replace(/^\|/, "").replace(/\|$/, "").split("|").map(function (c) { return c.trim(); });
   }
 
+  // 「次回卓」の箇条書き（項目：内容）を大きなカードにする
+  function hero(sec) {
+    var kv = {}, order = [];
+    sec.items.forEach(function (t) {
+      var m = t.match(/^([^：:]+)[：:]\s*(.*)$/);
+      if (m) { kv[m[1].trim()] = m[2].trim(); order.push(m[1].trim()); }
+    });
+    if (!kv["シナリオ"]) return null;
+    var h = '<section class="panel hero"><div class="label">' + esc(sec.h) + "</div>";
+    h += '<div class="title">' + esc(kv["シナリオ"]) + "</div>";
+    if (kv["状況"]) {
+      h += '<div class="chips">' + kv["状況"].split(/[／\/]/).map(function (c, i) {
+        return '<span class="chip' + (i === 0 ? " warn" : "") + '">' + esc(c.trim()) + "</span>";
+      }).join("") + "</div>";
+    }
+    var links = [], rest = [];
+    order.forEach(function (k) {
+      if (k === "シナリオ" || k === "状況") return;
+      if (/^https?:\/\/\S+$/.test(kv[k])) links.push(k); else rest.push(k);
+    });
+    rest.forEach(function (k) { h += '<div class="cond"><b>' + esc(k) + "</b>" + inline(kv[k]) + "</div>"; });
+    if (links.length) {
+      h += '<div class="links">' + links.map(function (k) {
+        var u = esc(kv[k]);
+        return '<a class="linkcard" href="' + u + '" target="_blank" rel="noopener noreferrer"><span class="t">' +
+          esc(k.replace(/URL$/, "ページ")) + '</span><span class="u">' + u + "</span></a>";
+      }).join("") + "</div>";
+    }
+    return h + "</section>";
+  }
+
   // README.md で使っている書き方（見出し・段落・引用・箇条書き・表）だけを扱う
   function render(md) {
     var lines = md.replace(/\r/g, "").split("\n");
     var title = "", lead = [], sections = [], cur = null, i = 0;
 
-    function out(html) {
-      if (cur) cur.body.push(html); else lead.push(html);
-    }
+    function out(html) { if (cur) cur.body.push(html); else lead.push(html); }
 
     while (i < lines.length) {
       var l = lines[i];
       if (/^# /.test(l)) { title = l.slice(2).trim(); i++; continue; }
-      if (/^## /.test(l)) { cur = { h: l.slice(3).trim(), body: [] }; sections.push(cur); i++; continue; }
-      if (/^> /.test(l)) { out('<p class="note">' + inline(l.slice(2)) + "</p>"); i++; continue; }
+      if (/^## /.test(l)) { cur = { h: l.slice(3).trim(), body: [], items: [], other: false }; sections.push(cur); i++; continue; }
+      if (/^> /.test(l)) { out('<p class="note">' + inline(l.slice(2)) + "</p>"); if (cur) cur.other = true; i++; continue; }
       if (/^- /.test(l) || l === "-") {
         var items = [];
         while (i < lines.length && (/^- /.test(lines[i]) || lines[i] === "-")) {
           var t = lines[i].replace(/^-\s?/, "").trim();
+          if (cur) cur.items.push(t);
           items.push("<li>" + (t ? inline(t) : "&nbsp;") + "</li>");
           i++;
         }
@@ -136,24 +261,45 @@ footer { color: var(--muted); font-size: 12px; margin-top: 8px; }
           i++;
         }
         var head = rows.shift() || [];
-        var html = "<table><thead><tr>" + head.map(function (h) { return "<th>" + inline(h) + "</th>"; }).join("") + "</tr></thead><tbody>";
+        var html = '<div class="tbl"><table><thead><tr>' + head.map(function (h) { return "<th>" + inline(h) + "</th>"; }).join("") + "</tr></thead><tbody>";
         rows.forEach(function (r) {
           html += "<tr>" + r.map(function (v, k) {
-            return '<td data-k="' + esc(head[k] || "") + '">' + (v ? inline(v) : "－") + "</td>";
+            var key = head[k] || "";
+            if (!v) return '<td class="dim" data-k="' + esc(key) + '">－</td>';
+            if (key === "区分") return '<td data-k="' + esc(key) + '"><span class="pill">' + esc(v) + "</span></td>";
+            return '<td data-k="' + esc(key) + '">' + inline(v) + "</td>";
           }).join("") + "</tr>";
         });
-        out(html + "</tbody></table>");
+        out(html + "</tbody></table></div>");
+        if (cur) cur.other = true;
         continue;
       }
-      if (l.trim()) out("<p>" + inline(l) + "</p>");
+      if (l.trim()) {
+        // ページ自身のURLを案内する行はウェブページ上では出さない
+        if (l.indexOf(SITE) >= 0 && l.indexOf(BOARD) < 0) { i++; continue; }
+        out("<p>" + inline(l) + "</p>");
+        if (cur) cur.other = true;
+      }
       i++;
     }
 
-    var h = "";
-    if (title) { h += "<h1>" + inline(title) + "</h1>"; document.title = title; }
+    var h = "<header>";
+    if (title) {
+      document.title = title;
+      var m = title.match(/^(\S+?卓)\s*(.*)$/);
+      h += '<div class="kicker">TABLE TALK RPG</div><h1>' +
+        (m ? '<span class="mark">' + esc(m[1]) + "</span> " + esc(m[2]) : esc(title)) + "</h1>";
+    }
     if (lead.length) h += '<div class="lead">' + lead.join("") + "</div>";
-    sections.forEach(function (s) {
-      h += '<section class="panel"><h2>' + inline(s.h) + "</h2>" + s.body.join("") + "</section>";
+    h += "</header>";
+
+    var n = 0;
+    sections.forEach(function (s, idx) {
+      if (idx === 0 && !s.other) {
+        var hh = hero(s);
+        if (hh) { h += hh; return; }
+      }
+      h += '<section class="panel ' + COLORS[n++ % COLORS.length] + '"><h2>' + inline(s.h) + "</h2>" + s.body.join("") + "</section>";
     });
     return h;
   }

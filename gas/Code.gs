@@ -161,9 +161,7 @@ function lookup_(b) {
         { muteHttpExceptions: true, headers: { "User-Agent": "Mozilla/5.0", "Referer": "https://www.pixiv.net/" } });
       why = "pixiv " + r2.getResponseCode();
       if (r2.getResponseCode() === 200) {
-        var body = (JSON.parse(r2.getContentText()) || {}).body || {};
-        var tags = ((body.tags || {}).tags || []).map(function (t) { return t.tag; });
-        info = guess_(body.title || "", tags, htmlText_(body.description || ""));
+        info = pixivInfo_((JSON.parse(r2.getContentText()) || {}).body || {});
       }
     } else {
       return json_({ ok: false, error: "自動取得できるのはBOOTHとpixiv小説のURLです" });
@@ -174,6 +172,14 @@ function lookup_(b) {
   }
   if (!info) return json_({ ok: false, error: "ページの情報を取得できませんでした。手で入力してください（" + why + "）" });
   return json_({ ok: true, data: info });
+}
+
+// pixiv小説：作品説明に加えて、本文の1ページ目（事前情報が書かれていることが多い）も推測に使う。
+// 2ページ目以降はKP向けのネタバレが多いので読まない。本文はメモには入れない。
+function pixivInfo_(body) {
+  var tags = ((body.tags || {}).tags || []).map(function (t) { return t.tag; });
+  var first = String(body.content || "").split("[newpage]")[0].replace(/\[chapter:[^\]]*\]/g, "\n").slice(0, 3000);
+  return guess_(body.title || "", tags, htmlText_(body.description || "") + "\n" + first);
 }
 
 function htmlText_(h) {
@@ -203,16 +209,16 @@ function cleanTitle_(t0) {
 // 説明文の「人数：」「プレイ時間：」などを抜き出す
 function fields_(desc) {
   var d = String(desc).replace(/\r/g, "");
-  function pick(re) {
+  function pick(re, cut) {
     var m = d.match(re);
     if (!m) return "";
-    var v = m[1].split(/[\n【■]/)[0].trim();
-    if (v.length > 14) v = v.split(/[（(]/)[0].trim();
+    var v = m[1].split(/[\n【■　]/)[0].trim();
+    if (v.length > 14) v = (cut === "paren" ? v.split(/[（(]/)[0] : v.split(/[、。]/)[0]).trim();
     return v.slice(0, 20);
   }
   return {
-    people: pick(/(?:PL人数|プレイ人数|推奨人数|対象人数|PL数|人数)\s*[】:：]\s*([^\n]+)/),
-    time: pick(/(?:プレイ時間|所要時間|想定時間|時間)\s*[】:：]\s*([^\n]+)/)
+    people: pick(/(?:PL人数|プレイ人数|推奨人数|対象人数|PL数|人数)\s*[】:：]\s*([^\n]+)/, "paren"),
+    time: pick(/(?:プレイ時間|所要時間|想定時間|時間)\s*[】:：]\s*([^\n]+)/, "comma")
   };
 }
 
@@ -234,6 +240,8 @@ function format_(name, tags, desc, fields) {
   if (fields.people) parts.push(fields.people);
   else if (tags.some(function (t) { return /タイマン/.test(t); })) parts.push("タイマン");
   if (fields.time) parts.push(fields.time);
+  if (tags.some(function (t) { return /クローズド/.test(t); })) parts.push("クローズド");
+  else if (tags.some(function (t) { return /シティ/.test(t); })) parts.push("シティ");
   return clip_(parts.join("／"), 60);
 }
 

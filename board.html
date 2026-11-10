@@ -78,7 +78,7 @@ input:focus, textarea:focus { outline: 2px solid var(--accent); outline-offset: 
 table { width: 100%; border-collapse: collapse; font-size: 14px; }
 th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
 th { color: var(--muted); font-weight: normal; font-size: 12px; white-space: nowrap; }
-td.url a { color: var(--accent); word-break: break-all; }
+td.url a, td.memo a { color: var(--accent); word-break: break-all; }
 td.st { white-space: nowrap; }
 .tag { display: inline-block; padding: 0 8px; border-radius: 99px; font-size: 12px; border: 1px solid var(--line); color: var(--muted); }
 .tag.hot { color: var(--ok); border-color: var(--ok); }
@@ -303,6 +303,16 @@ dialog .actions { justify-content: flex-end; }
     return a;
   }
 
+  // 文中のURLをリンクにする（URLの文字はそのまま見せる）
+  function linkify(text) {
+    var frag = document.createDocumentFragment();
+    String(text || "").split(/(https?:\/\/[^\s　、。）)」』]+)/).forEach(function (part, i) {
+      if (!part) return;
+      frag.appendChild(i % 2 ? urlNode(part) : document.createTextNode(part));
+    });
+    return frag;
+  }
+
   function td(cls, key, content) {
     var c = document.createElement("td");
     if (cls) c.className = cls;
@@ -331,7 +341,7 @@ dialog .actions { justify-content: flex-end; }
       tr.appendChild(td("title", "", x.title || "名称未確認"));
       tr.appendChild(td("url", "URL", urlNode(x.url)));
       tr.appendChild(td("", "形式", x.format || "－"));
-      tr.appendChild(td("", "メモ", x.memo || "－"));
+      tr.appendChild(td("memo", "メモ", x.memo ? linkify(x.memo) : "－"));
       var tag = document.createElement("span");
       tag.className = "tag" + (done ? " done" : x.status && x.status !== "候補" ? " hot" : "");
       tag.textContent = done ? "通過済み" : (x.status || "候補");
@@ -362,7 +372,7 @@ dialog .actions { justify-content: flex-end; }
     ul.innerHTML = "";
     memos.forEach(function (x) {
       var li = document.createElement("li");
-      li.appendChild(document.createTextNode(x.memo));
+      li.appendChild(linkify(x.memo));
       if (x.url) { li.appendChild(document.createTextNode(" ")); li.appendChild(urlNode(x.url)); }
       var m = document.createElement("span");
       m.className = "meta";

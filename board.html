@@ -73,6 +73,8 @@ input:focus, textarea:focus { outline: 2px solid var(--accent); outline-offset: 
 }
 .btn:disabled { opacity: .45; cursor: default; }
 .hint { color: var(--muted); font-size: 12px; }
+.foot { color: var(--muted); font-size: 11px; margin: 4px 0 0; }
+.foot a { color: var(--muted); word-break: break-all; }
 
 /* シナリオ候補の表 */
 table { width: 100%; border-collapse: collapse; font-size: 14px; }
@@ -218,6 +220,7 @@ dialog .actions { justify-content: flex-end; }
     <ul class="memos" id="memo-list"></ul>
     <p class="empty" id="memo-empty" hidden>まだメモがありません。</p>
   </section>
+  <p class="foot">投稿の削除用（データ本体のスプレッドシート。1行目とタブ名は変えない）：<a href="https://docs.google.com/spreadsheets/d/1qSWRHcKpm6VYFq0jiE2OBQEZxGbqHRYiysD2u5UaihM/edit" target="_blank" rel="noopener noreferrer">https://docs.google.com/spreadsheets/d/1qSWRHcKpm6VYFq0jiE2OBQEZxGbqHRYiysD2u5UaihM/edit</a></p>
 </div>
 <div class="toast" id="toast" role="status" hidden></div>
 

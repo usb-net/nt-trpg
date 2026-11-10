@@ -45,22 +45,8 @@
 - 景・斑 タイマン練習：https://ccfolia.com/rooms/9LIy-6zSH
 - リボルバー：https://ccfolia.com/rooms/8KC5dIVZK
 
-## 遊びたいシナリオ
+## 遊びたいシナリオ・自由メモ
 
-| シナリオ名 | URL | 形式・人数など | メモ | 状況 |
-| --- | --- | --- | --- | --- |
-| 孤独の密室 | https://booth.pm/ja/items/3431447 | クローズド／複数人 | 次回候補、新規推奨 | 日程調整中 |
-| 犯人はHO2 | https://booth.pm/ja/items/1940187 | 継続可／約6時間 | ギャグ候補 | 候補 |
-| 名称未確認 | https://www.pixiv.net/novel/show.php?id=6678249 | 継続可 | PLのSAN値にダメージが入るギャグ | 候補 |
-| 名称未確認 | https://www.pixiv.net/novel/show.php?id=6831442#1 | 継続可 | オールドなクトゥルフ神話。發さんは既知 | 候補 |
-| 嗤う人形師（要確認） | https://booth.pm/ja/items/2625282 | 秘匿あり | タイトルとURLの対応は要確認 | 候補 |
-| 皆既月食 | https://booth.pm/ja/items/3360155 | マダミス／5PL | 昏さんがGM候補。1月以降を想定 | 候補 |
-| 名称未確認 | https://booth.pm/ja/items/2633834 | 秘匿あり | 犬のシナリオ候補 | 候補 |
-| 薔薇の館 | URL未登録 | 継続可／約4時間 | URLを後で追加 | 候補 |
-| ばにさつ | URL未登録 | 継続可／約4時間 | URLを後で追加 | 候補 |
+シナリオ候補と自由メモはGoogleドキュメントで管理する。リンクを知っていれば誰でも追記できる（Googleアカウント不要）。
 
-## 自由メモ
-
-- 
-- 
-- 
+https://docs.google.com/document/d/1u1bt4v7sqtQSvRNLzwLAYIph5u8ltFKR2ConfpUYcxQ/edit?usp=drivesdk

@@ -4,6 +4,6 @@
 
 ## 候補メモ置き場
 
-候補の一覧はトップの README.md「遊びたいシナリオ」表で管理する。ここには表に収まらない補足（推奨技能、必要準備、所要時間の詳細など）をネタバレなしで書く。
+候補の一覧はGoogleドキュメント（ https://docs.google.com/document/d/1u1bt4v7sqtQSvRNLzwLAYIph5u8ltFKR2ConfpUYcxQ/edit?usp=drivesdk ）で管理する。ここには表に収まらない補足（推奨技能、必要準備、所要時間の詳細など）をネタバレなしで書く。
 
 - 

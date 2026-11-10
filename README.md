@@ -47,6 +47,6 @@
 
 ## 遊びたいシナリオ・自由メモ
 
-シナリオ候補と自由メモはGoogleドキュメントで管理する。リンクを知っていれば誰でも追記できる（Googleアカウント不要）。
+シナリオ候補と自由メモは投稿ボードで管理する。誰でもその場で追加でき、名前は記録されない（アカウント不要）。
 
-https://docs.google.com/document/d/1u1bt4v7sqtQSvRNLzwLAYIph5u8ltFKR2ConfpUYcxQ/edit?usp=drivesdk
+https://usb-net.github.io/nt-trpg/board.html

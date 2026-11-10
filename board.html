@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>ENTP卓 投稿ボード</title>
+<style>
+:root {
+  --bg: #12141a;
+  --panel: #1b1e27;
+  --line: #2c3040;
+  --fg: #e8e6e1;
+  --muted: #9a9cab;
+  --accent: #7fb2ff;
+  --accent-2: #c79bff;
+  --ok: #7ddf9a;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: "Hiragino Sans", "Yu Gothic", "Noto Sans JP", sans-serif;
+  font-size: 15px;
+  line-height: 1.7;
+  padding: 24px 14px 64px;
+}
+.wrap { max-width: 920px; margin: 0 auto; }
+h1 { font-size: 22px; margin: 0 0 4px; letter-spacing: .04em; }
+.lead { color: var(--muted); margin: 0 0 20px; font-size: 13px; }
+.lead a { color: var(--accent); }
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 18px;
+}
+h2 { font-size: 16px; margin: 0 0 12px; display: flex; align-items: baseline; gap: 8px; }
+h2 small { color: var(--muted); font-weight: normal; font-size: 12px; }
+
+/* 種類の切り替え */
+.tabs { display: flex; gap: 6px; margin-bottom: 12px; }
+.tabs button {
+  flex: 1; padding: 8px; border-radius: 8px; border: 1px solid var(--line);
+  background: transparent; color: var(--muted); font: inherit; cursor: pointer;
+}
+.tabs button[aria-pressed="true"] { background: #263048; color: var(--fg); border-color: var(--accent); }
+
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.grid .full { grid-column: 1 / -1; }
+label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 3px; }
+input, textarea {
+  width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--line);
+  background: #11131a; color: var(--fg); font: inherit;
+}
+textarea { min-height: 72px; resize: vertical; }
+input:focus, textarea:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+.actions { margin-top: 12px; display: flex; align-items: center; gap: 10px; }
+.btn {
+  padding: 9px 20px; border-radius: 8px; border: 0; cursor: pointer; font: inherit; font-weight: bold;
+  background: var(--accent); color: #0d1320;
+}
+.btn:disabled { opacity: .45; cursor: default; }
+.hint { color: var(--muted); font-size: 12px; }
+
+/* シナリオ候補の表 */
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--muted); font-weight: normal; font-size: 12px; white-space: nowrap; }
+td.url a { color: var(--accent); word-break: break-all; }
+td.st { white-space: nowrap; }
+.tag { display: inline-block; padding: 0 8px; border-radius: 99px; font-size: 12px; border: 1px solid var(--line); color: var(--muted); }
+.tag.hot { color: var(--ok); border-color: var(--ok); }
+
+/* メモ */
+.memos { list-style: none; margin: 0; padding: 0; }
+.memos li { padding: 8px 0; border-bottom: 1px solid var(--line); }
+.memos li:last-child { border-bottom: 0; }
+.memos a { color: var(--accent); word-break: break-all; }
+.meta { color: var(--muted); font-size: 12px; margin-left: 8px; }
+.empty { color: var(--muted); font-size: 13px; }
+
+.toast {
+  position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%);
+  background: #2a3350; color: var(--fg); padding: 10px 16px; border-radius: 8px; font-size: 14px;
+  box-shadow: 0 6px 20px rgba(0,0,0,.4);
+}
+
+/* スマホでは表をカード状に */
+@media (max-width: 640px) {
+  .grid { grid-template-columns: 1fr; }
+  thead { display: none; }
+  table, tbody, tr, td { display: block; width: 100%; }
+  tr { border-bottom: 1px solid var(--line); padding: 8px 0; }
+  td { border: 0; padding: 2px 0; }
+  td[data-k]::before { content: attr(data-k) "："; color: var(--muted); font-size: 12px; }
+  td.title { font-weight: bold; }
+  td.title::before { content: none !important; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>ENTP卓 投稿ボード</h1>
+  <p class="lead">シナリオ候補とメモを誰でも追加できる。名前は記録されない。削除・状況の変更は管理者が行う。<br>
+    総合ページ：<a href="https://github.com/usb-net/nt-trpg">https://github.com/usb-net/nt-trpg</a></p>
+
+  <section class="panel" aria-labelledby="h-add">
+    <h2 id="h-add">追加する</h2>
+    <div class="tabs" role="group" aria-label="種類">
+      <button type="button" id="tab-scenario" aria-pressed="true">シナリオ候補</button>
+      <button type="button" id="tab-memo" aria-pressed="false">メモ</button>
+    </div>
+
+    <div id="form-scenario" class="grid">
+      <div><label for="in-title">シナリオ名</label><input id="in-title" maxlength="80" placeholder="例：孤独の密室"></div>
+      <div><label for="in-url">URL</label><input id="in-url" type="url" maxlength="300" placeholder="https://booth.pm/..."></div>
+      <div><label for="in-format">形式・人数など</label><input id="in-format" maxlength="60" placeholder="例：継続可／約4時間"></div>
+      <div><label for="in-smemo">メモ</label><input id="in-smemo" maxlength="300" placeholder="ネタバレは書かない"></div>
+    </div>
+
+    <div id="form-memo" class="grid" hidden>
+      <div class="full"><label for="in-memo">メモ</label><textarea id="in-memo" maxlength="300" placeholder="日程の希望、連絡事項など"></textarea></div>
+      <div class="full"><label for="in-murl">URL（任意）</label><input id="in-murl" type="url" maxlength="300" placeholder="https://..."></div>
+    </div>
+
+    <div class="actions">
+      <button class="btn" id="btn-add" disabled>追加</button>
+      <span class="hint" id="hint">読み込み中…</span>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="h-sc">
+    <h2 id="h-sc">遊びたいシナリオ <small>新しい順</small></h2>
+    <table>
+      <thead><tr><th>シナリオ名</th><th>URL</th><th>形式・人数など</th><th>メモ</th><th>状況</th></tr></thead>
+      <tbody id="sc-body"></tbody>
+    </table>
+    <p class="empty" id="sc-empty" hidden>まだ候補がありません。</p>
+  </section>
+
+  <section class="panel" aria-labelledby="h-memo">
+    <h2 id="h-memo">自由メモ <small>新しい順</small></h2>
+    <ul class="memos" id="memo-list"></ul>
+    <p class="empty" id="memo-empty" hidden>まだメモがありません。</p>
+  </section>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+(function () {
+  "use strict";
+  // 窓口（Apps Script）のURL。デプロイ後に発行される …/exec を貼る
+  var API = "";
+
+  var $ = function (s) { return document.querySelector(s); };
+  var kind = "scenario";
+  var busy = false;
+  var ready = false;
+
+  function toast(msg) {
+    var t = $("#toast");
+    t.textContent = msg;
+    t.hidden = false;
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function () { t.hidden = true; }, 2600);
+  }
+
+  function call(body) {
+    var req = body
+      ? fetch(API, { method: "POST", credentials: "omit", body: JSON.stringify(body) })
+      : fetch(API + "?t=" + Date.now(), { credentials: "omit", cache: "no-store" });
+    return req.then(function (r) {
+      if (!r.ok) throw new Error("");
+      return r.json();
+    }).then(function (j) {
+      if (!j || !j.ok) throw new Error((j && j.error) || "");
+      return j.data;
+    });
+  }
+
+  function errMsg(e) {
+    var m = e && e.message ? e.message : "";
+    if (!m || /fetch|network|Load failed/i.test(m)) return "うまくつながりませんでした。少し待ってからもう一度試してください";
+    return m;
+  }
+
+  function fmtTime(ms) {
+    if (!ms) return "";
+    var d = new Date(ms);
+    return (d.getMonth() + 1) + "/" + d.getDate() + " " + String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+  }
+
+  // URLは http(s) のものだけリンクにし、文字はURLそのものを表示する
+  function urlNode(u) {
+    if (!/^https?:\/\/\S+$/.test(u || "")) return document.createTextNode(u || "URL未登録");
+    var a = document.createElement("a");
+    a.href = u;
+    a.textContent = u;
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    return a;
+  }
+
+  function td(cls, key, content) {
+    var c = document.createElement("td");
+    if (cls) c.className = cls;
+    if (key) c.setAttribute("data-k", key);
+    if (typeof content === "string") c.textContent = content; else c.appendChild(content);
+    return c;
+  }
+
+  function render(items) {
+    var sc = items.filter(function (x) { return x.kind === "scenario"; });
+    var memos = items.filter(function (x) { return x.kind === "memo"; });
+
+    var body = $("#sc-body");
+    body.innerHTML = "";
+    sc.forEach(function (x) {
+      var tr = document.createElement("tr");
+      tr.appendChild(td("title", "", x.title || "名称未確認"));
+      tr.appendChild(td("url", "URL", urlNode(x.url)));
+      tr.appendChild(td("", "形式", x.format || "－"));
+      tr.appendChild(td("", "メモ", x.memo || "－"));
+      var tag = document.createElement("span");
+      tag.className = "tag" + (x.status && x.status !== "候補" ? " hot" : "");
+      tag.textContent = x.status || "候補";
+      tr.appendChild(td("st", "状況", tag));
+      body.appendChild(tr);
+    });
+    $("#sc-empty").hidden = sc.length > 0;
+
+    var ul = $("#memo-list");
+    ul.innerHTML = "";
+    memos.forEach(function (x) {
+      var li = document.createElement("li");
+      li.appendChild(document.createTextNode(x.memo));
+      if (x.url) { li.appendChild(document.createTextNode(" ")); li.appendChild(urlNode(x.url)); }
+      var m = document.createElement("span");
+      m.className = "meta";
+      m.textContent = fmtTime(x.at);
+      li.appendChild(m);
+      ul.appendChild(li);
+    });
+    $("#memo-empty").hidden = memos.length > 0;
+  }
+
+  function sync() {
+    $("#btn-add").disabled = busy || !ready;
+  }
+
+  function refresh() {
+    return call(null).then(function (d) {
+      ready = true;
+      $("#hint").textContent = "";
+      render(d.items || []);
+      sync();
+    }).catch(function () {
+      $("#hint").textContent = "読み込みに失敗しました。再読み込みしてください";
+    });
+  }
+
+  function setKind(k) {
+    kind = k;
+    $("#tab-scenario").setAttribute("aria-pressed", String(k === "scenario"));
+    $("#tab-memo").setAttribute("aria-pressed", String(k === "memo"));
+    $("#form-scenario").hidden = k !== "scenario";
+    $("#form-memo").hidden = k !== "memo";
+  }
+  $("#tab-scenario").addEventListener("click", function () { setKind("scenario"); });
+  $("#tab-memo").addEventListener("click", function () { setKind("memo"); });
+
+  function v(id) { return $(id).value.trim(); }
+
+  function add() {
+    if (busy || !ready) return;
+    var body = kind === "scenario"
+      ? { action: "add", kind: "scenario", title: v("#in-title"), url: v("#in-url"), format: v("#in-format"), memo: v("#in-smemo") }
+      : { action: "add", kind: "memo", memo: v("#in-memo"), url: v("#in-murl") };
+    if (kind === "scenario" && !body.title && !body.url) { toast("シナリオ名かURLのどちらかを入れてください"); return; }
+    if (kind === "memo" && !body.memo) { toast("メモを入れてください"); return; }
+    if (body.url && !/^https?:\/\/\S+$/.test(body.url)) { toast("URLは http から始まる形で入れてください"); return; }
+
+    busy = true; sync();
+    call(body).then(function (d) {
+      (kind === "scenario" ? ["#in-title", "#in-url", "#in-format", "#in-smemo"] : ["#in-memo", "#in-murl"])
+        .forEach(function (s) { $(s).value = ""; });
+      render(d.items || []);
+      toast("追加しました");
+    }).catch(function (e) { toast(errMsg(e)); }).then(function () { busy = false; sync(); });
+  }
+  $("#btn-add").addEventListener("click", add);
+  ["#in-title", "#in-url", "#in-format", "#in-smemo", "#in-murl"].forEach(function (s) {
+    $(s).addEventListener("keydown", function (e) { if (e.key === "Enter" && !e.isComposing) add(); });
+  });
+
+  if (!API) {
+    $("#hint").textContent = "準備中（窓口のURLが未設定）";
+    return;
+  }
+  refresh();
+  setInterval(function () { if (!document.hidden && !busy) refresh(); }, 30000);
+})();
+</script>
+</body>
+</html>

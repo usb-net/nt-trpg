@@ -190,7 +190,7 @@ function cleanTitle_(t0) {
   if (q) return q[1].trim();
   var KW = /CoC|シナリオ|TRPG|クトゥルフ|タイマン|[0-9０-９]+版|6th|7th/i;
   t = t.replace(/【([^】]*)】/g, function (all, inner) { return KW.test(inner) ? " " : all; });
-  t = t.replace(/^\s*(CoC|クトゥルフ神話TRPG)\s*(第?[0-9]+(版|th))?\s*(タイマン)?\s*(シナリオ)?\s*[:：]?/i, "");
+  t = t.replace(/^\s*(CoC|新?クトゥルフ神話TRPG)\s*(第?[0-9]+(版|th))?\s*(タイマン)?\s*(シナリオ)?\s*[:：\/／|｜]?/i, "");
   t = t.trim().replace(/[（(][^（()）]*[）)]\s*$/, "").trim();
   var only = t.match(/^【([^】]+)】$/);
   if (only) t = only[1];
@@ -218,14 +218,15 @@ function genre_(tags, desc, people) {
   if (/マーダーミステリー|マダミス/.test(all)) return "マダミス";
   if (tags.some(function (t) { return /タイマン|2PL|２PL|KPレス/.test(t); })) return "2人用";
   if (/^(KP\s*[1１]\s*名?\s*[、,／/]?\s*)?(PL\s*)?([12１２]\s*(人|名|PL)|ひとり|一人|二人|ふたり|タイマン)/.test(people)) return "2人用";
-  if (/[2２二]\s*人\s*(限定|用)|[2２]\s*PC|KPPC|KPC\s*[+＋]\s*[1１]?\s*PC|タイマン(?!改変)/.test(desc)) return "2人用";
+  if (/[2２二]\s*人\s*(限定|用)|[2２]\s*PC|KPPC|KPC\s*[+＋]\s*[1１]?\s*PC|PL\s*[1１一]\s*人|タイマン(?!改変)/.test(desc)) return "2人用";
   return "TRPG";
 }
 
 function format_(name, tags, desc, fields) {
   var parts = [];
   var all = name + " " + tags.join(" ") + " " + desc;
-  if (/7版|第7版|7th/i.test(all)) parts.push("7版"); else if (/6版|第6版|6th/i.test(all)) parts.push("6版");
+  // 「新クトゥルフ」は権利表記にも出てくるので、タイトルとタグだけで判定する
+  if (/7版|第7版|7th/i.test(all) || /新クトゥルフ/.test(name + " " + tags.join(" "))) parts.push("7版"); else if (/6版|第6版|6th/i.test(all)) parts.push("6版");
   if (tags.some(function (t) { return /KPレス/.test(t); })) parts.push("KPレス");
   if (fields.people) parts.push(fields.people);
   else if (tags.some(function (t) { return /タイマン/.test(t); })) parts.push("タイマン");

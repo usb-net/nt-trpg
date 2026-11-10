@@ -256,6 +256,16 @@ dialog .actions { justify-content: flex-end; }
     </div>
     <div><label for="e-format">形式・人数など</label><input id="e-format" maxlength="60"></div>
     <div><label for="e-memo">メモ</label><textarea id="e-memo" maxlength="300" placeholder="ネタバレは書かない"></textarea></div>
+    <div><label for="e-status">状況</label>
+      <input id="e-status" maxlength="20" list="status-list" placeholder="候補">
+      <datalist id="status-list">
+        <option value="候補"></option>
+        <option value="次回確定"></option>
+        <option value="日程調整中"></option>
+        <option value="済"></option>
+      </datalist>
+      <span class="hint">「候補」「済」以外（次回確定・日程調整中など）は一覧の一番上に出る。「済」は通過済み</span>
+    </div>
   </div>
   <div class="actions">
     <button type="button" class="btn ghost" id="e-cancel">キャンセル</button>
@@ -355,7 +365,8 @@ dialog .actions { justify-content: flex-end; }
       return labels(x.genre).indexOf(filter) >= 0;
     });
     // 並び順：次回確定（「候補」「済」以外の状況）→ やりたいの多い順 → 見たいの多い順 → 新しい順。通過済みは一番下
-    function grp(x) { return x.status === DONE ? 2 : (x.status && x.status !== "候補") ? 0 : 1; }
+    // 「次回確定」が最上位、その次に「日程調整中」などその他の状況
+    function grp(x) { return x.status === DONE ? 3 : x.status === "次回確定" ? 0 : (x.status && x.status !== "候補") ? 1 : 2; }
     sc = sc.slice().sort(function (a, b) {
       return grp(a) - grp(b) || (b.want || 0) - (a.want || 0) || (b.watch || 0) - (a.watch || 0) || (b.at || 0) - (a.at || 0);
     });
@@ -564,6 +575,7 @@ dialog .actions { justify-content: flex-end; }
     $("#e-url").value = x.url || "";
     $("#e-format").value = x.format || "";
     $("#e-memo").value = x.memo || "";
+    $("#e-status").value = x.status || "候補";
     $("#dlg").showModal();
   }
   $("#e-get").addEventListener("click", function () {
@@ -576,7 +588,7 @@ dialog .actions { justify-content: flex-end; }
   $("#e-cancel").addEventListener("click", function () { $("#dlg").close(); });
   $("#e-save").addEventListener("click", function () {
     if (!editing || busy) return;
-    var f = { genre: eGenre, title: v("#e-title"), url: v("#e-url"), format: v("#e-format"), memo: v("#e-memo") };
+    var f = { genre: eGenre, title: v("#e-title"), url: v("#e-url"), format: v("#e-format"), memo: v("#e-memo"), status: v("#e-status") || "候補" };
     if (!f.title && !f.url) { toast("シナリオ名かURLのどちらかを入れてください"); return; }
     if (f.url && !/^https?:\/\/\S+$/.test(f.url)) { toast("URLは http から始まる形で入れてください"); return; }
     busy = true; sync();

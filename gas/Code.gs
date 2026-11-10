@@ -128,7 +128,7 @@ function setStatus_(b) {
   return json_({ ok: true, data: { items: list_() } });
 }
 
-// 種類・シナリオ名・URL・形式・メモを書き換える（状況はそのまま）
+// 種類・シナリオ名・URL・形式・メモを書き換える。状況は送られてきたときだけ書き換える
 function edit_(b) {
   var f = b.fields || {};
   var genre = GENRES.indexOf(f.genre) >= 0 ? f.genre : "TRPG";
@@ -142,6 +142,7 @@ function edit_(b) {
   var row = findRow_(sh, b.at, b.title);
   if (!row) return json_({ ok: false, error: NOT_FOUND });
   sh.getRange(row, 2, 1, 5).setValues([[genre, safe_(title || "名称未確認"), url, safe_(format), safe_(memo)]]);
+  if (f.status != null) sh.getRange(row, 7).setValue(safe_(clip_(f.status, 20) || "候補"));
   return json_({ ok: true, data: { items: list_() } });
 }
 

@@ -95,6 +95,7 @@ td.plain .mini { margin-top: 0; }
 @media (max-width: 640px) { .mini { display: inline-block; margin: 0 0 0 8px; } td.plain .mini { margin-left: 0; } }
 .tag.g-trpg { color: var(--accent); border-color: var(--accent); }
 .tag.g-mm { color: var(--accent-2); border-color: var(--accent-2); }
+.tag.g-duo { color: #ff8fb3; border-color: #ff8fb3; }
 td.g { white-space: nowrap; }
 .filters { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
 .filters button, .seg button {
@@ -154,7 +155,9 @@ td.g { white-space: nowrap; }
         <div class="seg" role="group" aria-label="種類">
           <button type="button" data-genre="TRPG" aria-pressed="true">TRPG</button>
           <button type="button" data-genre="マダミス" aria-pressed="false">マダミス</button>
+          <button type="button" data-genre="2人用" aria-pressed="false">2人用</button>
         </div>
+        <span class="hint">2人用：KPC＋PC、または2PCで遊べるもの</span>
       </div>
       <div><label for="in-title">シナリオ名</label><input id="in-title" maxlength="80" placeholder="例：孤独の密室"></div>
       <div><label for="in-url">URL</label><input id="in-url" type="url" maxlength="300" placeholder="https://booth.pm/..."></div>
@@ -179,6 +182,7 @@ td.g { white-space: nowrap; }
       <button type="button" data-f="" aria-pressed="true">すべて</button>
       <button type="button" data-f="TRPG" aria-pressed="false">TRPG</button>
       <button type="button" data-f="マダミス" aria-pressed="false">マダミス</button>
+      <button type="button" data-f="2人用" aria-pressed="false">2人用</button>
     </div>
     <table>
       <thead><tr><th>種類</th><th>シナリオ名</th><th>URL</th><th>形式・人数など</th><th>メモ</th><th>状況</th></tr></thead>
@@ -276,7 +280,7 @@ td.g { white-space: nowrap; }
       var done = x.status === DONE;
       if (done) tr.className = "done";
       var g = document.createElement("span");
-      g.className = "tag" + (x.genre === "TRPG" ? " g-trpg" : x.genre === "マダミス" ? " g-mm" : "");
+      g.className = "tag" + (x.genre === "TRPG" ? " g-trpg" : x.genre === "マダミス" ? " g-mm" : x.genre === "2人用" ? " g-duo" : "");
       g.textContent = x.genre || "未分類";
       tr.appendChild(td("g", "種類", g));
       tr.appendChild(td("title", "", x.title || "名称未確認"));

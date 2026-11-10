@@ -4,17 +4,19 @@
  * 使い方
  * 1. Googleスプレッドシートを新規作成し、「拡張機能」→「Apps Script」を開く
  * 2. このファイルの中身を Code.gs に丸ごと貼り付けて保存
- * 3. 関数一覧から setup を選んで一度だけ実行（シート作成と既存候補の登録）
+ * 3. 関数一覧から setup を選んで一度だけ実行（シート作成）
  * 4. 「デプロイ」→「新しいデプロイ」→ 種類「ウェブアプリ」
  *    実行ユーザー：自分 ／ アクセスできるユーザー：全員
  * 5. 発行された …/exec のURLを board.html の API に貼る
  *
  * 削除・状況の変更はスプレッドシートを直接編集する。
+ * 「種類」列は TRPG／マダミス／メモ のいずれか。それ以外の値は「未分類」の候補として表示される。
  */
 
 var SHEET = "投稿";
 var HEAD = ["日時", "種類", "シナリオ名", "URL", "形式・人数など", "メモ", "状況"];
-var KINDS = { scenario: "シナリオ候補", memo: "メモ" };
+var MEMO = "メモ";
+var GENRES = ["TRPG", "マダミス"];
 var MAX_LIST = 300;
 
 function sheet_() {
@@ -50,7 +52,8 @@ function list_() {
   return rows.filter(function (r) { return r[1]; }).map(function (r) {
     return {
       at: r[0] instanceof Date ? r[0].getTime() : 0,
-      kind: r[1] === KINDS.memo ? "memo" : "scenario",
+      kind: r[1] === MEMO ? "memo" : "scenario",
+      genre: GENRES.indexOf(String(r[1])) >= 0 ? String(r[1]) : "",
       title: String(r[2]), url: String(r[3]), format: String(r[4]),
       memo: String(r[5]), status: String(r[6])
     };
@@ -73,6 +76,7 @@ function doPost(e) {
     if (b.action !== "add") return json_({ ok: false, error: "不明な操作です" });
 
     var kind = b.kind === "memo" ? "memo" : "scenario";
+    var genre = GENRES.indexOf(b.genre) >= 0 ? b.genre : "TRPG";
     var title = clip_(b.title, 80);
     var url = clip_(b.url, 300);
     var format = clip_(b.format, 60);
@@ -82,7 +86,7 @@ function doPost(e) {
     if (kind === "scenario" && !title && !url) return json_({ ok: false, error: "シナリオ名かURLのどちらかを入れてください" });
     if (kind === "memo" && !memo) return json_({ ok: false, error: "メモを入れてください" });
 
-    sheet_().appendRow([new Date(), KINDS[kind], safe_(title || (kind === "scenario" ? "名称未確認" : "")),
+    sheet_().appendRow([new Date(), kind === "memo" ? MEMO : genre, safe_(title || (kind === "scenario" ? "名称未確認" : "")),
       url, safe_(format), safe_(memo), kind === "scenario" ? "候補" : ""]);
     return json_({ ok: true, data: { items: list_() } });
   } catch (err) {
@@ -92,25 +96,7 @@ function doPost(e) {
   }
 }
 
-/** 初回だけ手動で実行：シートを作り、既存のシナリオ候補を登録する */
+/** 初回だけ手動で実行：見出し付きの「投稿」シートを作る */
 function setup() {
-  var sh = sheet_();
-  if (sh.getLastRow() > 1) return;
-  var t = new Date();
-  var seed = [
-    ["孤独の密室", "https://booth.pm/ja/items/3431447", "クローズド／複数人", "次回候補、新規推奨", "日程調整中"],
-    ["犯人はHO2", "https://booth.pm/ja/items/1940187", "継続可／約6時間", "ギャグ候補", "候補"],
-    ["名称未確認", "https://www.pixiv.net/novel/show.php?id=6678249", "継続可", "PLのSAN値にダメージが入るギャグ", "候補"],
-    ["名称未確認", "https://www.pixiv.net/novel/show.php?id=6831442#1", "継続可", "オールドなクトゥルフ神話。發さんは既知", "候補"],
-    ["嗤う人形師（要確認）", "https://booth.pm/ja/items/2625282", "秘匿あり", "タイトルとURLの対応は要確認", "候補"],
-    ["皆既月食", "https://booth.pm/ja/items/3360155", "マダミス／5PL", "昏さんがGM候補。1月以降を想定", "候補"],
-    ["名称未確認", "https://booth.pm/ja/items/2633834", "秘匿あり", "犬のシナリオ候補", "候補"],
-    ["薔薇の館", "", "継続可／約4時間", "URLを後で追加", "候補"],
-    ["ばにさつ", "", "継続可／約4時間", "URLを後で追加", "候補"]
-  ];
-  // 表の上から順に並ぶよう、古い順に登録する
-  var rows = seed.slice().reverse().map(function (s, i) {
-    return [new Date(t.getTime() + i * 1000), KINDS.scenario, s[0], s[1], s[2], s[3], s[4]];
-  });
-  sh.getRange(2, 1, rows.length, HEAD.length).setValues(rows);
+  sheet_();
 }

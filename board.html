@@ -81,6 +81,16 @@ td.url a { color: var(--accent); word-break: break-all; }
 td.st { white-space: nowrap; }
 .tag { display: inline-block; padding: 0 8px; border-radius: 99px; font-size: 12px; border: 1px solid var(--line); color: var(--muted); }
 .tag.hot { color: var(--ok); border-color: var(--ok); }
+.tag.g-trpg { color: var(--accent); border-color: var(--accent); }
+.tag.g-mm { color: var(--accent-2); border-color: var(--accent-2); }
+td.g { white-space: nowrap; }
+.filters { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+.filters button, .seg button {
+  padding: 4px 14px; border-radius: 99px; border: 1px solid var(--line);
+  background: transparent; color: var(--muted); font: inherit; font-size: 13px; cursor: pointer;
+}
+.filters button[aria-pressed="true"], .seg button[aria-pressed="true"] { background: #263048; color: var(--fg); border-color: var(--accent); }
+.seg { display: flex; gap: 6px; }
 
 /* メモ */
 .memos { list-style: none; margin: 0; padding: 0; }
@@ -128,6 +138,12 @@ td.st { white-space: nowrap; }
     </div>
 
     <div id="form-scenario" class="grid">
+      <div class="full"><label>種類</label>
+        <div class="seg" role="group" aria-label="種類">
+          <button type="button" data-genre="TRPG" aria-pressed="true">TRPG</button>
+          <button type="button" data-genre="マダミス" aria-pressed="false">マダミス</button>
+        </div>
+      </div>
       <div><label for="in-title">シナリオ名</label><input id="in-title" maxlength="80" placeholder="例：孤独の密室"></div>
       <div><label for="in-url">URL</label><input id="in-url" type="url" maxlength="300" placeholder="https://booth.pm/..."></div>
       <div><label for="in-format">形式・人数など</label><input id="in-format" maxlength="60" placeholder="例：継続可／約4時間"></div>
@@ -147,8 +163,13 @@ td.st { white-space: nowrap; }
 
   <section class="panel" aria-labelledby="h-sc">
     <h2 id="h-sc">遊びたいシナリオ <small>新しい順</small></h2>
+    <div class="filters" role="group" aria-label="種類で絞り込み">
+      <button type="button" data-f="" aria-pressed="true">すべて</button>
+      <button type="button" data-f="TRPG" aria-pressed="false">TRPG</button>
+      <button type="button" data-f="マダミス" aria-pressed="false">マダミス</button>
+    </div>
     <table>
-      <thead><tr><th>シナリオ名</th><th>URL</th><th>形式・人数など</th><th>メモ</th><th>状況</th></tr></thead>
+      <thead><tr><th>種類</th><th>シナリオ名</th><th>URL</th><th>形式・人数など</th><th>メモ</th><th>状況</th></tr></thead>
       <tbody id="sc-body"></tbody>
     </table>
     <p class="empty" id="sc-empty" hidden>まだ候補がありません。</p>
@@ -170,6 +191,9 @@ td.st { white-space: nowrap; }
 
   var $ = function (s) { return document.querySelector(s); };
   var kind = "scenario";
+  var genre = "TRPG";
+  var filter = "";
+  var last = [];
   var busy = false;
   var ready = false;
 
@@ -226,13 +250,18 @@ td.st { white-space: nowrap; }
   }
 
   function render(items) {
-    var sc = items.filter(function (x) { return x.kind === "scenario"; });
+    last = items;
+    var sc = items.filter(function (x) { return x.kind === "scenario" && (!filter || x.genre === filter); });
     var memos = items.filter(function (x) { return x.kind === "memo"; });
 
     var body = $("#sc-body");
     body.innerHTML = "";
     sc.forEach(function (x) {
       var tr = document.createElement("tr");
+      var g = document.createElement("span");
+      g.className = "tag" + (x.genre === "TRPG" ? " g-trpg" : x.genre === "マダミス" ? " g-mm" : "");
+      g.textContent = x.genre || "未分類";
+      tr.appendChild(td("g", "種類", g));
       tr.appendChild(td("title", "", x.title || "名称未確認"));
       tr.appendChild(td("url", "URL", urlNode(x.url)));
       tr.appendChild(td("", "形式", x.format || "－"));
@@ -282,6 +311,19 @@ td.st { white-space: nowrap; }
     $("#form-scenario").hidden = k !== "scenario";
     $("#form-memo").hidden = k !== "memo";
   }
+  Array.prototype.forEach.call(document.querySelectorAll(".seg button"), function (b) {
+    b.addEventListener("click", function () {
+      genre = b.getAttribute("data-genre");
+      Array.prototype.forEach.call(document.querySelectorAll(".seg button"), function (o) { o.setAttribute("aria-pressed", String(o === b)); });
+    });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll(".filters button"), function (b) {
+    b.addEventListener("click", function () {
+      filter = b.getAttribute("data-f");
+      Array.prototype.forEach.call(document.querySelectorAll(".filters button"), function (o) { o.setAttribute("aria-pressed", String(o === b)); });
+      render(last);
+    });
+  });
   $("#tab-scenario").addEventListener("click", function () { setKind("scenario"); });
   $("#tab-memo").addEventListener("click", function () { setKind("memo"); });
 
@@ -290,7 +332,7 @@ td.st { white-space: nowrap; }
   function add() {
     if (busy || !ready) return;
     var body = kind === "scenario"
-      ? { action: "add", kind: "scenario", title: v("#in-title"), url: v("#in-url"), format: v("#in-format"), memo: v("#in-smemo") }
+      ? { action: "add", kind: "scenario", genre: genre, title: v("#in-title"), url: v("#in-url"), format: v("#in-format"), memo: v("#in-smemo") }
       : { action: "add", kind: "memo", memo: v("#in-memo"), url: v("#in-murl") };
     if (kind === "scenario" && !body.title && !body.url) { toast("シナリオ名かURLのどちらかを入れてください"); return; }
     if (kind === "memo" && !body.memo) { toast("メモを入れてください"); return; }

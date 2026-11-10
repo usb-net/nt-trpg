@@ -29,6 +29,12 @@ body {
   padding: 24px 14px 64px;
 }
 .wrap { max-width: 920px; margin: 0 auto; }
+nav { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+nav a {
+  padding: 6px 14px; border-radius: 99px; border: 1px solid var(--line);
+  color: var(--muted); text-decoration: none; font-size: 13px;
+}
+nav a[aria-current="page"] { color: var(--fg); border-color: var(--accent); background: #263048; }
 h1 { font-size: 22px; margin: 0 0 4px; letter-spacing: .04em; }
 .lead { color: var(--muted); margin: 0 0 20px; font-size: 13px; }
 .lead a { color: var(--accent); }
@@ -105,9 +111,14 @@ td.st { white-space: nowrap; }
 </head>
 <body>
 <div class="wrap">
+  <nav>
+    <a href="./">総合ページ</a>
+    <a href="board.html" aria-current="page">投稿ボード</a>
+    <a href="https://usb-net.github.io/TRPG/" target="_blank" rel="noopener">TRPG案内 ↗</a>
+    <a href="https://usb-net.github.io/TRPG/CSdraft.html" target="_blank" rel="noopener">キャラシ下書き帳 ↗</a>
+  </nav>
   <h1>ENTP卓 投稿ボード</h1>
-  <p class="lead">シナリオ候補とメモを誰でも追加できる。名前は記録されない。削除・状況の変更は管理者が行う。<br>
-    総合ページ：<a href="https://github.com/usb-net/nt-trpg">https://github.com/usb-net/nt-trpg</a></p>
+  <p class="lead">シナリオ候補とメモを誰でも追加できる。名前は記録されない。削除・状況の変更は管理者が行う。</p>
 
   <section class="panel" aria-labelledby="h-add">
     <h2 id="h-add">追加する</h2>

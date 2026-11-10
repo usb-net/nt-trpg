@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>ENTP卓 総合ページ</title>
+<style>
+:root {
+  --bg: #12141a;
+  --panel: #1b1e27;
+  --line: #2c3040;
+  --fg: #e8e6e1;
+  --muted: #9a9cab;
+  --accent: #7fb2ff;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: "Hiragino Sans", "Yu Gothic", "Noto Sans JP", sans-serif;
+  font-size: 15px;
+  line-height: 1.7;
+  padding: 24px 14px 64px;
+}
+.wrap { max-width: 920px; margin: 0 auto; }
+nav { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+nav a {
+  padding: 6px 14px; border-radius: 99px; border: 1px solid var(--line);
+  color: var(--muted); text-decoration: none; font-size: 13px;
+}
+nav a[aria-current="page"] { color: var(--fg); border-color: var(--accent); background: #263048; }
+h1 { font-size: 22px; margin: 0 0 4px; letter-spacing: .04em; }
+.lead { color: var(--muted); margin: 0 0 20px; font-size: 13px; }
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 18px;
+}
+h2 { font-size: 16px; margin: 0 0 12px; }
+p { margin: 0 0 8px; }
+p:last-child { margin-bottom: 0; }
+.note { color: var(--muted); font-size: 13px; border-left: 3px solid var(--line); padding-left: 10px; }
+ul { margin: 0; padding-left: 1.2em; }
+li { margin: 2px 0; }
+a { color: var(--accent); word-break: break-all; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--muted); font-weight: normal; font-size: 12px; white-space: nowrap; }
+.btn {
+  display: inline-block; margin-top: 4px; padding: 9px 20px; border-radius: 8px; font-weight: bold;
+  background: var(--accent); color: #0d1320; text-decoration: none; word-break: normal;
+}
+.err { color: #ff9a9a; }
+footer { color: var(--muted); font-size: 12px; margin-top: 8px; }
+
+/* スマホでは表をカード状に */
+@media (max-width: 640px) {
+  thead { display: none; }
+  table, tbody, tr, td { display: block; width: 100%; }
+  tr { border-bottom: 1px solid var(--line); padding: 8px 0; }
+  td { border: 0; padding: 2px 0; }
+  td:first-child { font-weight: bold; }
+  td:not(:first-child)[data-k]::before { content: attr(data-k) "："; color: var(--muted); font-size: 12px; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav>
+    <a href="./" aria-current="page">総合ページ</a>
+    <a href="board.html">投稿ボード</a>
+    <a href="https://usb-net.github.io/TRPG/" target="_blank" rel="noopener">TRPG案内 ↗</a>
+    <a href="https://usb-net.github.io/TRPG/CSdraft.html" target="_blank" rel="noopener">キャラシ下書き帳 ↗</a>
+  </nav>
+  <main id="main"><p class="lead">読み込み中…</p></main>
+  <footer>このページは README.md の内容を表示している。更新は README.md を編集する。</footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var BOARD = "https://usb-net.github.io/nt-trpg/board.html";
+
+  function esc(s) {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
+
+  // URLはURLそのものを表示してリンクにする。投稿ボードのURLだけはボタンにする
+  function inline(s) {
+    return esc(s).replace(/https?:\/\/[^\s<|）)]+/g, function (u) {
+      var raw = u.replace(/&amp;/g, "&");
+      if (raw === BOARD) return '<a class="btn" href="board.html">投稿ボードを開く</a>';
+      return '<a href="' + u + '" target="_blank" rel="noopener noreferrer">' + u + "</a>";
+    });
+  }
+
+  function cells(line) {
+    return line.trim().replace(/^\|/, "").replace(/\|$/, "").split("|").map(function (c) { return c.trim(); });
+  }
+
+  // README.md で使っている書き方（見出し・段落・引用・箇条書き・表）だけを扱う
+  function render(md) {
+    var lines = md.replace(/\r/g, "").split("\n");
+    var title = "", lead = [], sections = [], cur = null, i = 0;
+
+    function out(html) {
+      if (cur) cur.body.push(html); else lead.push(html);
+    }
+
+    while (i < lines.length) {
+      var l = lines[i];
+      if (/^# /.test(l)) { title = l.slice(2).trim(); i++; continue; }
+      if (/^## /.test(l)) { cur = { h: l.slice(3).trim(), body: [] }; sections.push(cur); i++; continue; }
+      if (/^> /.test(l)) { out('<p class="note">' + inline(l.slice(2)) + "</p>"); i++; continue; }
+      if (/^- /.test(l) || l === "-") {
+        var items = [];
+        while (i < lines.length && (/^- /.test(lines[i]) || lines[i] === "-")) {
+          var t = lines[i].replace(/^-\s?/, "").trim();
+          items.push("<li>" + (t ? inline(t) : "&nbsp;") + "</li>");
+          i++;
+        }
+        out("<ul>" + items.join("") + "</ul>");
+        continue;
+      }
+      if (/^\|/.test(l)) {
+        var rows = [];
+        while (i < lines.length && /^\|/.test(lines[i])) {
+          var c = cells(lines[i]);
+          if (!c.every(function (x) { return /^:?-+:?$/.test(x); })) rows.push(c);
+          i++;
+        }
+        var head = rows.shift() || [];
+        var html = "<table><thead><tr>" + head.map(function (h) { return "<th>" + inline(h) + "</th>"; }).join("") + "</tr></thead><tbody>";
+        rows.forEach(function (r) {
+          html += "<tr>" + r.map(function (v, k) {
+            return '<td data-k="' + esc(head[k] || "") + '">' + (v ? inline(v) : "－") + "</td>";
+          }).join("") + "</tr>";
+        });
+        out(html + "</tbody></table>");
+        continue;
+      }
+      if (l.trim()) out("<p>" + inline(l) + "</p>");
+      i++;
+    }
+
+    var h = "";
+    if (title) { h += "<h1>" + inline(title) + "</h1>"; document.title = title; }
+    if (lead.length) h += '<div class="lead">' + lead.join("") + "</div>";
+    sections.forEach(function (s) {
+      h += '<section class="panel"><h2>' + inline(s.h) + "</h2>" + s.body.join("") + "</section>";
+    });
+    return h;
+  }
+
+  fetch("README.md?t=" + Date.now(), { cache: "no-store" })
+    .then(function (r) { if (!r.ok) throw new Error(); return r.text(); })
+    .then(function (md) { document.getElementById("main").innerHTML = render(md); })
+    .catch(function () {
+      document.getElementById("main").innerHTML =
+        '<p class="err">読み込みに失敗しました。再読み込みしてください。</p>' +
+        '<p><a href="https://github.com/usb-net/nt-trpg">https://github.com/usb-net/nt-trpg</a></p>';
+    });
+})();
+</script>
+</body>
+</html>

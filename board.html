@@ -81,6 +81,16 @@ td.url a { color: var(--accent); word-break: break-all; }
 td.st { white-space: nowrap; }
 .tag { display: inline-block; padding: 0 8px; border-radius: 99px; font-size: 12px; border: 1px solid var(--line); color: var(--muted); }
 .tag.hot { color: var(--ok); border-color: var(--ok); }
+.tag.done { color: var(--fg); border-color: var(--muted); background: #2a2f3d; }
+tr.done td { opacity: .5; }
+tr.done td.st { opacity: 1; }
+.mini {
+  display: block; margin-top: 6px; padding: 2px 10px; border-radius: 6px; font: inherit; font-size: 12px;
+  border: 1px solid var(--line); background: transparent; color: var(--muted); cursor: pointer; white-space: nowrap;
+}
+.mini:hover { color: var(--fg); border-color: var(--accent); }
+.mini:disabled { opacity: .4; cursor: default; }
+@media (max-width: 640px) { .mini { display: inline-block; margin: 0 0 0 8px; } }
 .tag.g-trpg { color: var(--accent); border-color: var(--accent); }
 .tag.g-mm { color: var(--accent-2); border-color: var(--accent-2); }
 td.g { white-space: nowrap; }
@@ -194,6 +204,7 @@ td.g { white-space: nowrap; }
   var genre = "TRPG";
   var filter = "";
   var last = [];
+  var DONE = "済";
   var busy = false;
   var ready = false;
 
@@ -252,12 +263,16 @@ td.g { white-space: nowrap; }
   function render(items) {
     last = items;
     var sc = items.filter(function (x) { return x.kind === "scenario" && (!filter || x.genre === filter); });
+    // 通過済み（済）は下にまとめる
+    sc = sc.filter(function (x) { return x.status !== DONE; }).concat(sc.filter(function (x) { return x.status === DONE; }));
     var memos = items.filter(function (x) { return x.kind === "memo"; });
 
     var body = $("#sc-body");
     body.innerHTML = "";
     sc.forEach(function (x) {
       var tr = document.createElement("tr");
+      var done = x.status === DONE;
+      if (done) tr.className = "done";
       var g = document.createElement("span");
       g.className = "tag" + (x.genre === "TRPG" ? " g-trpg" : x.genre === "マダミス" ? " g-mm" : "");
       g.textContent = x.genre || "未分類";
@@ -267,9 +282,17 @@ td.g { white-space: nowrap; }
       tr.appendChild(td("", "形式", x.format || "－"));
       tr.appendChild(td("", "メモ", x.memo || "－"));
       var tag = document.createElement("span");
-      tag.className = "tag" + (x.status && x.status !== "候補" ? " hot" : "");
-      tag.textContent = x.status || "候補";
-      tr.appendChild(td("st", "状況", tag));
+      tag.className = "tag" + (done ? " done" : x.status && x.status !== "候補" ? " hot" : "");
+      tag.textContent = done ? "通過済み" : (x.status || "候補");
+      var cell = td("st", "状況", tag);
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "mini";
+      btn.textContent = done ? "戻す" : "通過済みにする";
+      btn.disabled = busy || !ready;
+      btn.addEventListener("click", function () { setStatus(x, done ? "候補" : DONE); });
+      cell.appendChild(btn);
+      tr.appendChild(cell);
       body.appendChild(tr);
     });
     $("#sc-empty").hidden = sc.length > 0;
@@ -287,6 +310,15 @@ td.g { white-space: nowrap; }
       ul.appendChild(li);
     });
     $("#memo-empty").hidden = memos.length > 0;
+  }
+
+  function setStatus(x, status) {
+    if (busy || !ready) return;
+    busy = true; sync(); render(last);
+    call({ action: "status", at: x.at, title: x.title, status: status }).then(function (d) {
+      render(d.items || []);
+      toast(status === DONE ? "「" + (x.title || "名称未確認") + "」を通過済みにしました" : "候補に戻しました");
+    }).catch(function (e) { toast(errMsg(e)); }).then(function () { busy = false; sync(); render(last); });
   }
 
   function sync() {

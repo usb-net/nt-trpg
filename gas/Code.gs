@@ -9,7 +9,7 @@
  *    実行ユーザー：自分 ／ アクセスできるユーザー：全員
  * 5. 発行された …/exec のURLを board.html の API に貼る
  *
- * 削除・状況の変更はスプレッドシートを直接編集する。
+ * 削除はスプレッドシートを直接編集する。状況の「済」⇔「候補」はボードのボタンでも切り替えられる。
  * 「種類」列は TRPG／マダミス／メモ のいずれか。それ以外の値は「未分類」の候補として表示される。
  */
 
@@ -73,6 +73,7 @@ function doPost(e) {
   try {
     lock.waitLock(10000);
     var b = JSON.parse((e && e.postData && e.postData.contents) || "{}");
+    if (b.action === "status") return setStatus_(b);
     if (b.action !== "add") return json_({ ok: false, error: "不明な操作です" });
 
     var kind = b.kind === "memo" ? "memo" : "scenario";
@@ -94,6 +95,25 @@ function doPost(e) {
   } finally {
     try { lock.releaseLock(); } catch (_) {}
   }
+}
+
+// 状況を「済」⇔「候補」に切り替える。行は日時（A列）とシナリオ名（C列）で探す
+function setStatus_(b) {
+  var status = b.status === "済" ? "済" : "候補";
+  var at = Number(b.at);
+  var sh = sheet_();
+  var n = sh.getLastRow() - 1;
+  if (n < 1 || !at) return json_({ ok: false, error: "対象が見つかりませんでした" });
+  var rows = sh.getRange(2, 1, n, 3).getValues();
+  for (var i = 0; i < rows.length; i++) {
+    var r = rows[i];
+    if (r[1] === MEMO) continue;
+    if (r[0] instanceof Date && r[0].getTime() === at && String(r[2]) === String(b.title || "")) {
+      sh.getRange(i + 2, 7).setValue(status);
+      return json_({ ok: true, data: { items: list_() } });
+    }
+  }
+  return json_({ ok: false, error: "対象が見つかりませんでした。再読み込みしてから試してください" });
 }
 
 /** 初回だけ手動で実行：見出し付きの「投稿」シートを作る */

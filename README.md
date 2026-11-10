@@ -18,6 +18,7 @@
 | キャラシ下書き帳 | https://usb-net.github.io/TRPG/CSdraft.html | 新規探索者作成用 |
 | 日程調整 | https://chouseisan.com/s?h=3c6c03edb98e469fba23b06ffec4c406 | 必要に応じて更新 |
 | 議事録（Notion） | https://app.notion.com/p/ENTP-4070a6223ba581499d10c2f98068ee6f?source=copy_link | リボルバー時点の記録 |
+| 投稿ボードのデータ（スプレッドシート） | https://docs.google.com/spreadsheets/d/1qSWRHcKpm6VYFq0jiE2OBQEZxGbqHRYiysD2u5UaihM/edit | 投稿の修正・削除用。1行目とタブ名は変えない |
 | ココフォリア駒の作り方 | https://docs.ccfolia.com/pl-tutorial/character-edit | |
 | ココフォリア立ち絵の設定 | https://docs.ccfolia.com/pl-tutorial/character-edit/character-icon | |
 

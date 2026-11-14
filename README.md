@@ -49,6 +49,23 @@
 
 https://usb-net.github.io/nt-trpg/board.html
 
+## 今後の予定・準備中
+
+- 昏さんKPのマーダーミステリー「皆既月喰」：部屋は作成済み。テキセ向けに改変して準備中。
+
+## 共通リンク
+
+| 用途 | URL | 備考 |
+| --- | --- | --- |
+| TRPG案内・キャラシ下書き帳 | https://usb-net.github.io/TRPG/ | 遊び方の説明を含む |
+| キャラシ下書き帳 | https://usb-net.github.io/TRPG/CSdraft.html | 新規探索者作成用 |
+| 日程調整 | https://chouseisan.com/s?h=3c6c03edb98e469fba23b06ffec4c406 | 必要に応じて更新 |
+| 議事録（Notion） | https://app.notion.com/p/ENTP-4070a6223ba581499d10c2f98068ee6f?source=copy_link | リボルバー時点の記録 |
+| シナリオ候補ページのデータ（スプレッドシート） | https://docs.google.com/spreadsheets/d/1qSWRHcKpm6VYFq0jiE2OBQEZxGbqHRYiysD2u5UaihM/edit | 投稿の修正・削除用。1行目とタブ名は変えない |
+| ココフォリア駒の作り方 | https://docs.ccfolia.com/pl-tutorial/character-edit | |
+| ココフォリア立ち絵の設定 | https://docs.ccfolia.com/pl-tutorial/character-edit/character-icon | |
+| 蛍さんの初心者講座（Notion） | https://sumptuous-sedum-4d5.notion.site/417f7bfe5a6e80d888f7d53d441c4379 | 用語・キャラシの作り方・ココフォリアの駒の置き方 |
+
 ## これまでの探索者
 
 | PL | 探索者名 | 区分 | 備考 | キャラシ |
@@ -67,23 +84,6 @@ https://usb-net.github.io/nt-trpg/board.html
 | --- | --- | --- |
 | KPCの授業を受けないと出られない部屋 | https://usb-net.github.io/TRPG/kpc-class.html | https://ccfolia.com/rooms/9LIy-6zSH |
 | リボルバー | https://usb-net.github.io/TRPG/revolver.html | https://ccfolia.com/rooms/8KC5dIVZK |
-
-## 共通リンク
-
-| 用途 | URL | 備考 |
-| --- | --- | --- |
-| TRPG案内・キャラシ下書き帳 | https://usb-net.github.io/TRPG/ | 遊び方の説明を含む |
-| キャラシ下書き帳 | https://usb-net.github.io/TRPG/CSdraft.html | 新規探索者作成用 |
-| 日程調整 | https://chouseisan.com/s?h=3c6c03edb98e469fba23b06ffec4c406 | 必要に応じて更新 |
-| 議事録（Notion） | https://app.notion.com/p/ENTP-4070a6223ba581499d10c2f98068ee6f?source=copy_link | リボルバー時点の記録 |
-| シナリオ候補ページのデータ（スプレッドシート） | https://docs.google.com/spreadsheets/d/1qSWRHcKpm6VYFq0jiE2OBQEZxGbqHRYiysD2u5UaihM/edit | 投稿の修正・削除用。1行目とタブ名は変えない |
-| ココフォリア駒の作り方 | https://docs.ccfolia.com/pl-tutorial/character-edit | |
-| ココフォリア立ち絵の設定 | https://docs.ccfolia.com/pl-tutorial/character-edit/character-icon | |
-| 蛍さんの初心者講座（Notion） | https://sumptuous-sedum-4d5.notion.site/417f7bfe5a6e80d888f7d53d441c4379 | 用語・キャラシの作り方・ココフォリアの駒の置き方 |
-
-## 今後の予定・準備中
-
-- 昏さんKPのマーダーミステリー「皆既月喰」：部屋は作成済み。テキセ向けに改変して準備中。
 
 ## KP向け：フリーBGMの探し方
 

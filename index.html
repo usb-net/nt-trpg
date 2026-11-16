@@ -146,6 +146,17 @@ ul.sub { margin: 2px 0 4px; }
 }
 .btn:hover { text-decoration: none; filter: brightness(1.08); }
 .err { color: #ff9a9a; }
+.codebox { position: relative; margin-top: 8px; border: 1px solid var(--line); background: #0b0d12; }
+.codebox pre {
+  margin: 0; padding: 44px 14px 14px; max-height: 420px; overflow: auto;
+  font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace; font-size: 12.5px; line-height: 1.6;
+  white-space: pre-wrap; word-break: break-all; color: #d6d8e2;
+}
+.copybtn {
+  position: absolute; top: 8px; right: 8px; padding: 6px 16px; border: 0; border-radius: 0; cursor: pointer;
+  font: inherit; font-size: 13px; font-weight: bold; background: linear-gradient(90deg, #7fb2ff, #a99bff); color: #0d1320;
+}
+.copybtn:hover { filter: brightness(1.08); }
 footer { color: var(--muted); font-size: 12px; margin-top: 8px; text-align: center; }
 
 /* スマホでは表をカード状に */
@@ -236,7 +247,7 @@ footer { color: var(--muted); font-size: 12px; margin-top: 8px; text-align: cent
     return h + "</section>";
   }
 
-  // README.md で使っている書き方（見出し・段落・引用・箇条書き・表）だけを扱う
+  // README.md で使っている書き方（見出し・段落・引用・箇条書き・表・```の枠）だけを扱う
   function render(md) {
     var lines = md.replace(/\r/g, "").split("\n");
     var title = "", lead = [], sections = [], cur = null, i = 0;
@@ -245,6 +256,17 @@ footer { color: var(--muted); font-size: 12px; margin-top: 8px; text-align: cent
 
     while (i < lines.length) {
       var l = lines[i];
+      // ``` で囲んだ部分はコピーボタン付きの枠にする（中身はそのまま表示）
+      var fm = l.match(/^(`{3,})/);
+      if (fm) {
+        var fence = fm[1], code = [];
+        i++;
+        while (i < lines.length && lines[i].trim() !== fence) { code.push(lines[i]); i++; }
+        i++;
+        out('<div class="codebox"><button type="button" class="copybtn">コピー</button><pre>' + esc(code.join("\n")) + "</pre></div>");
+        if (cur) cur.other = true;
+        continue;
+      }
       if (/^# /.test(l)) { title = l.slice(2).trim(); i++; continue; }
       if (/^## /.test(l)) { cur = { h: l.slice(3).trim(), body: [], items: [], kids: [], other: false }; sections.push(cur); i++; continue; }
       if (/^> /.test(l)) { out('<p class="note">' + inline(l.slice(2)) + "</p>"); if (cur) cur.other = true; i++; continue; }
@@ -315,6 +337,27 @@ footer { color: var(--muted); font-size: 12px; margin-top: 8px; text-align: cent
     });
     return h;
   }
+
+  // コピーボタン
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest && e.target.closest(".copybtn");
+    if (!b) return;
+    var text = b.parentNode.querySelector("pre").textContent;
+    function done(ok) {
+      b.textContent = ok ? "コピーしました" : "コピーできませんでした";
+      setTimeout(function () { b.textContent = "コピー"; }, 2000);
+    }
+    function fallback() {
+      var ta = document.createElement("textarea");
+      ta.value = text; ta.setAttribute("readonly", ""); ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta); ta.select();
+      var ok = false; try { ok = document.execCommand("copy"); } catch (err) {}
+      document.body.removeChild(ta); done(ok);
+    }
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(function () { done(true); }, fallback);
+    } else fallback();
+  });
 
   fetch("README.md?t=" + Date.now(), { cache: "no-store" })
     .then(function (r) { if (!r.ok) throw new Error(); return r.text(); })

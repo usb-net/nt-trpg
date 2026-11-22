@@ -88,6 +88,7 @@ https://usb-net.github.io/nt-trpg/board.html
 | シナリオ・内容 | ログ | ココフォリア部屋 |
 | --- | --- | --- |
 | 孤独の密室（20日から） |  | https://ccfolia.com/rooms/4l2KQLyFD |
+| 黒の家、サウスウィック家の7つの席 | https://usb-net.github.io/TRPG/kuroseki.html |  |
 | KPCの授業を受けないと出られない部屋 | https://usb-net.github.io/TRPG/kpc-class.html | https://ccfolia.com/rooms/9LIy-6zSH |
 | リボルバー | https://usb-net.github.io/TRPG/revolver.html | https://ccfolia.com/rooms/8KC5dIVZK |
 

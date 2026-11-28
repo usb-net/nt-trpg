@@ -12,7 +12,7 @@
 - 条件：PCは能力値が全て2桁以上推奨
 - 推奨技能：目星・聞き耳・図書館、および戦闘を有利にする（武術や武器などを用いる）技能
 - 関係：探索者同士は初対面でも既知でもよい
-- 日程調整：https://chouseisan.com/s?h=d0e2231eab284a6191a8f98472898653
+- 調整さん：https://chouseisan.com/s?h=d0e2231eab284a6191a8f98472898653
 - 日程：
   - 20日：21時から。実施済み。
   - 27・28日：21時から（暫定）。
@@ -86,7 +86,7 @@ https://usb-net.github.io/nt-trpg/board.html
 | --- | --- | --- |
 | TRPG案内・キャラシ下書き帳 | https://usb-net.github.io/TRPG/ | 遊び方の説明を含む |
 | キャラシ下書き帳 | https://usb-net.github.io/TRPG/CSdraft.html | 新規探索者作成用 |
-| 日程調整 | https://chouseisan.com/s?h=d0e2231eab284a6191a8f98472898653 | 必要に応じて更新 |
+| 調整さん | https://chouseisan.com/s?h=d0e2231eab284a6191a8f98472898653 | 必要に応じて更新 |
 | 議事録（Notion） | https://app.notion.com/p/ENTP-4070a6223ba581499d10c2f98068ee6f?source=copy_link | リボルバー時点の記録 |
 | シナリオ候補ページのデータ（スプレッドシート） | https://docs.google.com/spreadsheets/d/1qSWRHcKpm6VYFq0jiE2OBQEZxGbqHRYiysD2u5UaihM/edit | 投稿の修正・削除用。1行目とタブ名は変えない |
 | ココフォリア駒の作り方 | https://docs.ccfolia.com/pl-tutorial/character-edit | |
